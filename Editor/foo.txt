@@ -1,1 +1,1 @@
-foo is not allowed
+foo is not allowed but bar is
