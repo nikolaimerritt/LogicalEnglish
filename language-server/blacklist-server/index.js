@@ -4,51 +4,42 @@ const {
     DiagnosticSeverity,
     TextDocuments,
     createConnection,
-  } = require('vscode-languageserver')
-  
-  const {TextDocument} = require('vscode-languageserver-textdocument')
+} = require('vscode-languageserver')
 
+const { TextDocument } = require('vscode-languageserver-textdocument')
 
-// returns list of {value: __, index: __} objects
 const getBlacklisted = (text) => {
     const blacklist = [
-        "foo",
-        "bar",
-        "baz"
+        'foo',
+        'bar',
+        'baz',
     ]
-
-    const regex = new RegExp(`\\b(${blacklist.join("|")})\\b`, "gi")
-    
+    const regex = new RegExp(`\\b(${blacklist.join('|')})\\b`, 'gi')
     const results = []
-    const maxResults = 100
-    while ((matches = regex.exec(text)) && results.length < maxResults) {
+    regex.lastIndex = 0
+    while ((matches = regex.exec(text)) && results.length < 100) {
         results.push({
             value: matches[0],
-            index: matches.index
+            index: matches.index,
         })
     }
-
     return results
 }
 
-const getDiagnostics = (textDocument) => 
+const blacklistToDiagnostic = (textDocument) => ({ index, value }) => ({
+    severity: DiagnosticSeverity.Warning,
+    range: {
+        start: textDocument.positionAt(index),
+        end: textDocument.positionAt(index + value.length),
+    },
+    message: `${value} is blacklisted.`,
+    source: 'Blacklister',
+})
+
+const getDiagnostics = (textDocument) =>
     getBlacklisted(textDocument.getText())
     .map(blacklistToDiagnostic(textDocument))
 
-
-const blacklistToDiagnostic = (textDocument) => 
-    ({ index, value }) => ({
-        severity: DiagnosticSeverity.Warning,
-        range: {
-            start: textDocument.positionAt(index),
-            end: textDocument.positionAt(index + value.length)
-        },
-        message: `${value} is blacklisted -- bad! >:(`,
-        source: 'Blacklister',
-    })
-
-
-// setting up connection and documents listener
 const connection = createConnection()
 const documents = new TextDocuments(TextDocument)
 
@@ -58,12 +49,10 @@ connection.onInitialize(() => ({
     },
 }))
 
-
-// setting up diagnostic notification
 documents.onDidChangeContent(change => {
     connection.sendDiagnostics({
         uri: change.document.uri,
-        diagnostics: getDiagnostics(change.document)
+        diagnostics: getDiagnostics(change.document),
     })
 })
 
