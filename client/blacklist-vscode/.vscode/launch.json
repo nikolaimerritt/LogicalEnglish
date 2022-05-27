@@ -3,16 +3,12 @@
   "configurations": [
     {
       "name": "Run Extension",
-      "type": "pwa-node",
+      "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}"
-      ],
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ] 
+      ]
     }
 
   ]
