@@ -44,7 +44,7 @@ repository:
     match: "^([Tt]he templates are)(:)(\\s*)$"
     captures:
       '1': 
-        name: entity.name.type.template.logical-english
+        name: storage.type.template.logical-english
       '2':
         name: punctuation.section.template.begin.logical-english
 
@@ -52,7 +52,7 @@ repository:
     match: "^([Tt]he knowledge base[\\w|\\s]*)(:)(\\s*)$"
     captures:
       '1': 
-        name: entity.name.type.knowledge-base.logical-english
+        name: storage.type.knowledge-base.logical-english
       '3':
         name: punctuation.section.knowledge-base.begin.logical-english
     
