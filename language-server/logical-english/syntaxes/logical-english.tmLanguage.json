@@ -1,0 +1,46 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Logical English",
+  "patterns": [
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#comments"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.logical-english",
+          "match": "\\b(if|while|for|return)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.logical-english",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.logical-english",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "comments": {
+      "match": "(%)(.*)",
+      "name": "comment.line.FOO.percentage.logical-english",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.comment.logical-english"
+        }
+      }
+    }
+  },
+  "scopeName": "source.logical-english"
+}

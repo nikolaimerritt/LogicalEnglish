@@ -1,0 +1,38 @@
+{
+    "name": "logical-english",
+    "displayName": "Logical English",
+    "description": "Syntax highlighting and template generation for Logical English",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.67.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "logical-english",
+                "aliases": [
+                    "Logical English",
+                    "logical-english"
+                ],
+                "extensions": [
+                    ".le"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "logical-english",
+                "scopeName": "source.logical-english",
+                "path": "./syntaxes/logical-english.tmLanguage.json"
+            }
+        ]
+    },
+    "dependencies": {
+        "argparse": "^2.0.1",
+        "js-yaml": "^4.1.0"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "tasks": [{
+        "label": "build-tmlanguage-json",
+        "command": "npx",
+        "args": [
+            "js-yaml",
+            "syntaxes/logical-english.tmLanguage.yaml",
+            ">",
+            "syntaxes/logical-english.tmLanguage.json",
+        ],
+        "type": "shell"
+    }]
+}
