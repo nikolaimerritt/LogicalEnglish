@@ -4,6 +4,9 @@ patterns:
 - include: "#keywords"
 - include: "#strings"
 - include: "#comments"
+- include: "#multiline-comments"
+- include: "#template-headers"
+- include: "#knowledge-base-headers"
 
 repository:
   keywords:
@@ -25,6 +28,33 @@ repository:
     captures:
       '1': 
         name: punctuation.definition.comment.logical-english
+  
+  multiline-comments:
+    name: comment.block.logical-english
+    begin: /\*
+    beginCaptures:
+      "0":
+        name: punctuation.definition.comment.block.begin.logical-english
+    end: \*/
+    endCaptures:
+      "0":
+        name: punctuation.definition.comment.block.end.logical-english
+  
+  template-headers:
+    match: "^([Tt]he templates are)(:)(\\s*)$"
+    captures:
+      '1': 
+        name: entity.name.type.template.logical-english
+      '2':
+        name: punctuation.section.template.begin.logical-english
+
+  knowledge-base-headers:
+    match: "^([Tt]he knowledge base[\\w|\\s]*)(:)(\\s*)$"
+    captures:
+      '1': 
+        name: entity.name.type.knowledge-base.logical-english
+      '3':
+        name: punctuation.section.knowledge-base.begin.logical-english
     
   
 
