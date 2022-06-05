@@ -12,7 +12,7 @@ repository:
   keywords:
     patterns:
     - name: keyword.control.logical-english
-      match: "\\b(if|while|for|return)\\b"
+      match: "\\b(if|then)\\b"
     
   strings:
     name: string.quoted.double.logical-english
