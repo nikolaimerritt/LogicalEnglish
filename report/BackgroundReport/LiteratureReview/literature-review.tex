@@ -1,5 +1,14 @@
 \documentclass[../main.tex]{subfiles}
 
 \begin{document}
-literature revieeeew
+Language Servers have proven to be a powerful tool in creating cross-editor support for a wide variety of programming languages. As noted by Rask et al \cite[]{standardised_lsp_extensions}, the Language Server Protocol, which language servers use to communicate with code editors, "changed the field of IDEs" since one language server can communicate with any IDE that supports the protocol. In surveying the effectiveness of language servers when building a language server for OCaml, Bour et al \cite[]{merlin_experience_report} note that ``adding support for a new editor to a language server requires no language-specific logic". This allows people who are not yet familiar with a given language to link a language server to their IDE of choice and begin programming. 
+\\ \\
+Bour et al \cite[]{merlin_experience_report} and the Visual Studio Code Language Server Extension documentation \cite[]{vsc_langserver_docs} also describe two main challenges that Language Servers face, ``incrementality and partiality":
+\begin{itemize}
+    \item Due to effiency constraints, the IDE only being able to send the portions of the document to the language server
+    \item The language server having to parse incomplete portions of code that the user is writing
+\end{itemize}
+In building their language server for OCaml, Bour et al solved these two issues by additionally building their own parser, generated using an enhanced version of Menhir, that could handle incrementality and partiality. This was needed because OCaml has a complex, recursive grammar, which made parsing incomplete portions of code a highly complex task. Logical English, however, has a very simple, non-recursive grammar, and our language server only concerns itself with parsing certain aspects of the language. Thus it is reasonable for our language server to parse the document itself.
+\\ \\
+Wang et al \cite[]{classless_java} created a powerful compilation agent that auto-generates Java boilerplate code from more succint, annotated Java. The boilerplate code is generated at the Abstract Syntax Tree (AST) level: the code generator starts with the AST representing the annotated code and, using the Lombok compilation agent, produces an AST corresponding to non-annotated, boilerplate Java. Since neither templates nor heads of rules are recursive, we will likely find that a less complex representation can be favoured over AST.
 \end{document}
