@@ -38,7 +38,7 @@ repository:
   
   template-headers:
     match: '^(\s*)(the templates are)(:)(\s*)$'
-    name: entity.type.template.logical-english
+    name: entity.template.logical-english
     captures:
       '2': 
         name: storage.type.template.logical-english
@@ -47,7 +47,7 @@ repository:
 
   knowledge-base-headers:
     match: '^(\s*)(the knowledge base \w[\w|\s]+)(:)(\s*)$'
-    name: entity.type.knowledge-base.logical-english
+    name: entity.knowledge-base.logical-english
     captures:
       '2': 
         name: storage.type.knowledge-base.logical-english
@@ -55,13 +55,17 @@ repository:
         name: punctuation.section.knowledge-base.begin.logical-english
   
   scenario-headers:
-    match: '^(\s*)(scenario) (\w[\w|\s]*) (is:)(\s*)$'
-    name: storage.type.scenario.logical-english
-    captures:
-      '3':
+    begin: '^(\s*)(scenario)'
+    beginCaptures:
+      '2': { name: storage.type.scenario.logical-english }
+    end: '(is)(?=:\s*$)'
+    endCaptures:
+      '1': { name: storage.type.scenario.logical-english }
+      '2': { name: punctuation.section.scenario.begin.logical-english }
+    name: entity.scenario.logical-english
+    patterns:
+      - match: ' (\w[\w|\s]*) '
         name: entity.name.type.scenario.logical-english
-      '4':
-        name: punctuation.section.scenario.begin.logical-english
   
   query-headers:
     begin: '^(\s*)(query)'
@@ -71,14 +75,14 @@ repository:
     endCaptures:
       '1': { name: storage.type.query.logical-english }
       '2': { name: punctuation.section.query.begin.logical-english }
-    name: storage.type.query.logical-english
+    name: entity.query.logical-english
     patterns:
       - match: ' (\w[\w|\s]*) '
         name: entity.name.type.query.logical-english
   
   template-variables:
     match: '(\*)(\w[\w|\s]*)(\*)'
-    name: meta.variable.template.logical-english
+    name: entity.variable.template.logical-english
     captures:
       '1':
         name: punctuation.definition.variable.begin.logical-english
@@ -88,7 +92,7 @@ repository:
         name: punctuation.definition.variable.end.logical-english
 
   predefined-constants:
-    match: '\b(unknown|hi)\b'
+    match: '\b(unknown)\b'
     name: variable.special.predefined.logical-english
       
 scopeName: source.logical-english
