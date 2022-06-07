@@ -10,7 +10,7 @@ The Syntax Highlighter will identify both micro-features of Logical English such
 \subsection*{Language Server}
 The Language Server will allow the user to generate new templates from rules. If a set of rules do not match any existing templates, the Language Server will communicate this to the editor. It will allow the user to, at the click of a button, generate a template that matches the rules. 
 \\ \\ 
-If there is time, we will give the language server the feature to alert the user of certain type mismatch errors. The user will be notified of errors where a rule is supplied in the knowledge base with a type that conficts with the corresponding type in the rule's template. To determine whether the one type conficts with the other, the Language Server would consider type inheritance as supported by Logical English.
+If there is time, I will give the language server the feature to alert the user of certain type mismatch errors. The user will be notified of errors where a rule is supplied in the knowledge base with a type that conficts with the corresponding type in the rule's template. To determine whether the one type conficts with the other, the Language Server would consider type inheritance as supported by Logical English.
 \\ \\
 The language server will communicate with potential language clients using the Langauge Server Protocol. This way, many popular code editors will be able to easily communicate with the language server.
 
@@ -18,7 +18,7 @@ The language server will communicate with potential language clients using the L
 The syntax highlighter will be implemented using TextMate grammar, since this has the widest range of editor support.  The Language Server will be implemented in TypeScript using the \texttt{vscode-languageserver} NPM package. This package has clear, thorough documentation which describes multiple example language servers. In testing, both the language server and syntax highlighter will be tested on a Visual Studio Code language client. This choice is made due to Visual Studio Code's powerful debugging features for language plugins.
 
 \subsection*{Project Timeline}
-The timeline for developing and testing these two tools is below. This plan has us completing both the template generation and type error detection features of the language server. However, if any large problems arise, we will prioritise solving these over working on type error detection.
+The timeline for developing and testing these two tools is below. This plan has us completing both the template generation and type error detection features of the language server. However, if any large problems arise, I will prioritise solving these over working on type error detection.
 \\
 \begin{tabularx}{\textwidth}{|l|X|}
     \hline

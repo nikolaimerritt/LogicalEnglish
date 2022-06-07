@@ -68,6 +68,7 @@
     },
     "template-headers": {
       "match": "^(\\s*)(the templates are)(:)(\\s*)$",
+      "name": "entity.type.template.logical-english",
       "captures": {
         "2": {
           "name": "storage.type.template.logical-english"
@@ -79,6 +80,7 @@
     },
     "knowledge-base-headers": {
       "match": "^(\\s*)(the knowledge base \\w[\\w|\\s]+)(:)(\\s*)$",
+      "name": "entity.type.knowledge-base.logical-english",
       "captures": {
         "2": {
           "name": "storage.type.knowledge-base.logical-english"
@@ -101,16 +103,28 @@
       }
     },
     "query-headers": {
-      "match": "^(\\s*)(query) (\\w[\\w|\\s]*) (is:)(\\s*)$",
-      "name": "storage.type.query.logical-english",
-      "captures": {
-        "3": {
-          "name": "entity.name.type.query.logical-english"
+      "begin": "^(\\s*)(query)",
+      "beginCaptures": {
+        "2": {
+          "name": "storage.type.query.logical-english"
+        }
+      },
+      "end": "(is)(?=:\\s*$)",
+      "endCaptures": {
+        "1": {
+          "name": "storage.type.query.logical-english"
         },
-        "4": {
+        "2": {
           "name": "punctuation.section.query.begin.logical-english"
         }
-      }
+      },
+      "name": "storage.type.query.logical-english",
+      "patterns": [
+        {
+          "match": " \\w[\\w|\\s]* ",
+          "name": "entity.name.type.query.logical-english"
+        }
+      ]
     },
     "template-variables": {
       "match": "(\\*)(\\w[\\w|\\s]*)(\\*)",
