@@ -27,7 +27,7 @@
       "include": "#query-headers"
     },
     {
-      "include": "#template-variables"
+      "include": "#template-types"
     },
     {
       "include": "#predefined-constants"
@@ -110,7 +110,7 @@
       "patterns": [
         {
           "match": " (\\w[\\w|\\s]*) ",
-          "name": "entity.name.type.scenario.logical-english"
+          "name": "entity.name.scenario.logical-english"
         }
       ]
     },
@@ -134,22 +134,22 @@
       "patterns": [
         {
           "match": " (\\w[\\w|\\s]*) ",
-          "name": "entity.name.type.query.logical-english"
+          "name": "entity.name.query.logical-english"
         }
       ]
     },
-    "template-variables": {
-      "match": "(\\*)(\\w[\\w|\\s]*)(\\*)",
-      "name": "entity.variable.template.logical-english",
+    "template-types": {
+      "match": "(\\*)((a|an) )?(\\w[\\w|\\s]*)(\\*)",
+      "name": "entity.type.template.logical-english",
       "captures": {
         "1": {
-          "name": "punctuation.definition.variable.begin.logical-english"
+          "name": "punctuation.definition.type.begin.logical-english"
         },
-        "2": {
-          "name": "variable.template.logical-english"
+        "4": {
+          "name": "entity.name.type.template-type.logical-english"
         },
-        "3": {
-          "name": "punctuation.definition.variable.end.logical-english"
+        "5": {
+          "name": "punctuation.definition.type.end.logical-english"
         }
       }
     },
