@@ -3,6 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
+// Code taken entirely from https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+
 import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
 

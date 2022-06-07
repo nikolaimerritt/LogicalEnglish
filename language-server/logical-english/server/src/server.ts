@@ -2,6 +2,9 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+
+// Code taken entirely from https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+
 import {
 	createConnection,
 	TextDocuments,
