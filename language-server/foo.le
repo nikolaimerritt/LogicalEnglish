@@ -1,6 +1,14 @@
 /* hi there
 */
 lol
-The templates are:   
-The knowledge base foo:
-hi
+the templates are:    
+*foo* likes *bar* and *baz*
+
+the knowledge base includes:
+
+scenario one is:
+foo *foo*
+
+query two is:
+foo if bar then unknown foo it is the case that blah
+unknown hi foo

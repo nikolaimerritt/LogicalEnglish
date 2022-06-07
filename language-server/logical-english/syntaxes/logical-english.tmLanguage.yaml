@@ -7,23 +7,19 @@ patterns:
 - include: "#multiline-comments"
 - include: "#template-headers"
 - include: "#knowledge-base-headers"
+- include: "#scenario-headers"
+- include: "#query-headers"
+- include: "#template-variables"
+- include: "#predefined-constants"
 
 repository:
   keywords:
     patterns:
     - name: keyword.control.logical-english
-      match: "\\b(if|then)\\b"
-    
-  strings:
-    name: string.quoted.double.logical-english
-    begin: "\""
-    end: "\""
-    patterns:
-    - name: constant.character.escape.logical-english
-      match: "\\\\."
-  
+      match: '\b(if|then|it is the case that|it is not the case that)\b'
+
   comments:
-    match: "(%)(.*)"
+    match: '(%)(.*)'
     name: comment.line.percentage.logical-english
     captures:
       '1': 
@@ -41,21 +37,52 @@ repository:
         name: punctuation.definition.comment.block.end.logical-english
   
   template-headers:
-    match: "^([Tt]he templates are)(:)(\\s*)$"
+    match: '^(\s*)(the templates are)(:)(\s*)$'
     captures:
-      '1': 
+      '2': 
         name: storage.type.template.logical-english
-      '2':
+      '3':
         name: punctuation.section.template.begin.logical-english
 
   knowledge-base-headers:
-    match: "^([Tt]he knowledge base[\\w|\\s]*)(:)(\\s*)$"
+    match: '^(\s*)(the knowledge base \w[\w|\s]+)(:)(\s*)$'
     captures:
-      '1': 
+      '2': 
         name: storage.type.knowledge-base.logical-english
-      '3':
+      '4':
         name: punctuation.section.knowledge-base.begin.logical-english
-    
   
+  scenario-headers:
+    match: '^(\s*)(scenario) (\w[\w|\s]*) (is:)(\s*)$'
+    name: "storage.type.scenario.logical-english"
+    captures:
+      '3':
+        name: entity.name.type.scenario.logical-english
+      '4':
+        name: punctuation.section.scenario.begin.logical-english
+  
+  query-headers:
+    match: '^(\s*)(query) (\w[\w|\s]*) (is:)(\s*)$'
+    name: "storage.type.query.logical-english"
+    captures:
+      '3':
+        name: entity.name.type.query.logical-english
+      '4':
+        name: punctuation.section.query.begin.logical-english
+  
+  template-variables:
+    match: '(\*)(\w[\w|\s]*)(\*)'
+    name: "meta.variable.template.logical-english"
+    captures:
+      '1':
+        name: punctuation.definition.variable.begin.logical-english
+      '2':
+        name: variable.template.logical-english
+      '3':
+        name: punctuation.definition.variable.end.logical-english
 
+  predefined-constants:
+    match: '\b(unknown|hi)\b'
+    name: "variable.special.predefined.logical-english"
+      
 scopeName: source.logical-english
