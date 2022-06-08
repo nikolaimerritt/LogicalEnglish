@@ -45,7 +45,7 @@ export function activate(context: ExtensionContext) {
 		// Register the server for plain text documents
 		documentSelector: [{ 
 			scheme: 'file', 
-			language: 'logicalenglish' 
+			language: 'le' 
 		}],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
@@ -55,7 +55,7 @@ export function activate(context: ExtensionContext) {
 
 	// Create the language client and start the client.
 	client = new LanguageClient(
-		'logicalenglish',
+		'le',
 		'Logical English Language Client',
 		serverOptions,
 		clientOptions

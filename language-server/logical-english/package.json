@@ -13,6 +13,7 @@
 		"Programming Languages"
 	],
 	"keywords": [
+		"le",
 		"logicalenglish",
 		"logical-english",
 		"logical english",
@@ -23,7 +24,7 @@
 		"vscode": "^1.63.0"
 	},
 	"activationEvents": [
-		"onLanguage:logicalenglish"
+		"onLanguage:le"
 	],
 	"main": "./client/out/extension",
 	"contributes": {
@@ -52,22 +53,23 @@
 		},
 		"languages": [
             {
-                "id": "logicalenglish",
+                "id": "le",
                 "aliases": [
+					"le",
                     "Logical English",
                     "logical-english",
 					"logical english",
 					"logical_english"
                 ],
                 "extensions": [
-                    ".logicalenglish"
+                    ".le"
                 ],
                 "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
             {
-                "language": "logicalenglish",
+                "language": "le",
                 "scopeName": "source.logical-english",
                 "path": "./syntaxes/logical-english.tmLanguage.json"
             }

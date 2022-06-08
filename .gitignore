@@ -1,6 +1,7 @@
 # Personal
 *.md
 
+foo.le
 *.aux
 *.lof
 *.log
