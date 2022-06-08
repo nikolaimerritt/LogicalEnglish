@@ -24,7 +24,7 @@
 		"vscode": "^1.63.0"
 	},
 	"activationEvents": [
-		"onLanguage:le"
+		"onLanguage:logical-english"
 	],
 	"main": "./client/out/extension",
 	"contributes": {
@@ -53,13 +53,13 @@
 		},
 		"languages": [
             {
-                "id": "le",
+                "id": "logical-english",
                 "aliases": [
-					"le",
                     "Logical English",
                     "logical-english",
 					"logical english",
-					"logical_english"
+					"logical_english",
+					"le"
                 ],
                 "extensions": [
                     ".le"
@@ -69,7 +69,7 @@
         ],
         "grammars": [
             {
-                "language": "le",
+                "language": "logical-english",
                 "scopeName": "source.logical-english",
                 "path": "./syntaxes/logical-english.tmLanguage.json"
             }
