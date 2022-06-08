@@ -29,13 +29,14 @@ import {
 const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
-const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const documents = new TextDocuments(TextDocument);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
+	connection.console.log("Server started -- saying hello");
 	const capabilities = params.capabilities;
 
 	// Does the client support the `workspace/configuration` request?
@@ -143,7 +144,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
-	const pattern = /\b[A-Z]{2,}\b/g;
+	const pattern = /\b(foo)|(bar)|(baz)\b/g;  // /\b[A-Z]{2,}\b/g;
 	let m: RegExpExecArray | null;
 
 	let problems = 0;
@@ -151,12 +152,12 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
 		problems++;
 		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Warning,
+			severity: DiagnosticSeverity.Error,
 			range: {
 				start: textDocument.positionAt(m.index),
 				end: textDocument.positionAt(m.index + m[0].length)
 			},
-			message: `${m[0]} is all uppercase.`,
+			message: `${m[0]} is a banned word.`,
 			source: 'ex'
 		};
 		if (hasDiagnosticRelatedInformationCapability) {
@@ -166,14 +167,14 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 						uri: textDocument.uri,
 						range: Object.assign({}, diagnostic.range)
 					},
-					message: 'Spelling matters'
+					message: 'Here is where I would put some extra info...'
 				},
 				{
 					location: {
 						uri: textDocument.uri,
 						range: Object.assign({}, diagnostic.range)
 					},
-					message: 'Particularly for names'
+					message: '...that is asynchronously loaded in after an error has been detected.'
 				}
 			];
 		}

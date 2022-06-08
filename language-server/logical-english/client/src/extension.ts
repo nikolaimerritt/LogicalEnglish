@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-// Code taken entirely from https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+// Code taken entirely from https://code.visualstudio.com/api/language-extensions/language-server-extension-guideg
 
 import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
@@ -29,7 +29,10 @@ export function activate(context: ExtensionContext) {
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
 	const serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
+		run: { 
+			module: serverModule, 
+			transport: TransportKind.ipc 
+		},
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
@@ -40,7 +43,10 @@ export function activate(context: ExtensionContext) {
 	// Options to control the language client
 	const clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
-		documentSelector: [{ scheme: 'file', language: 'plaintext' }],
+		documentSelector: [{ 
+			scheme: 'file', 
+			language: 'logicalenglish' 
+		}],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
@@ -49,19 +55,20 @@ export function activate(context: ExtensionContext) {
 
 	// Create the language client and start the client.
 	client = new LanguageClient(
-		'languageServerExample',
-		'Language Server Example',
+		'logicalenglish',
+		'Logical English Language Client',
 		serverOptions,
 		clientOptions
 	);
 
 	// Start the client. This will also launch the server
+	console.log("Client is starting language server.");
 	client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {
-	if (!client) {
+	if (!client) 
 		return undefined;
-	}
+
 	return client.stop();
 }
