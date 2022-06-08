@@ -73,7 +73,13 @@
                 "scopeName": "source.logical-english",
                 "path": "./syntaxes/logical-english.tmLanguage.json"
             }
-        ]
+        ],
+		"commands": [
+			{
+				"command": "logical-english-extension.sayHello",
+				"title": "Say Hello :)"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

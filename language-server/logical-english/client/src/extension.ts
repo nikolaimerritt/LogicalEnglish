@@ -6,7 +6,7 @@
 // Code taken entirely from https://code.visualstudio.com/api/language-extensions/language-server-extension-guideg
 
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, commands, window, TextEditor, TextEditorEdit } from 'vscode';
 
 import {
 	LanguageClient,
@@ -62,7 +62,18 @@ export function activate(context: ExtensionContext) {
 	);
 
 	// Start the client. This will also launch the server
+	commands.registerTextEditorCommand(
+		"logical-english-extension.sayHello", 
+		(textEditor: TextEditor, edit: TextEditorEdit) => {
+			console.log(textEditor.selection);
+	});
+
 	console.log("Client is starting language server.");
+	client.onReady().then(() => {
+		client.onNotification("custom/loadFiles", (files: Array<string>) => {
+			console.log(`Received custom/loadFiles message with files = ${files}`);
+		});
+	});
 	client.start();
 }
 

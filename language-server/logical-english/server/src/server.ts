@@ -17,12 +17,17 @@ import {
 	CompletionItemKind,
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
-	InitializeResult
+	InitializeResult,
+	CodeActionParams,
+	CodeAction
 } from 'vscode-languageserver/node';
 
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
+
+import { refactor } from "./refactor";
+import { CodeActionKind, commands } from 'vscode';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -34,6 +39,7 @@ const documents = new TextDocuments(TextDocument);
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
+let hasCodeActionLiteralsCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
 	connection.console.log("Server started -- saying hello");
@@ -52,14 +58,18 @@ connection.onInitialize((params: InitializeParams) => {
 		capabilities.textDocument.publishDiagnostics &&
 		capabilities.textDocument.publishDiagnostics.relatedInformation
 	);
+	hasCodeActionLiteralsCapability = !!(
+		capabilities.textDocument &&
+		capabilities.textDocument.codeAction &&
+		capabilities.textDocument.codeAction.codeActionLiteralSupport
+	);
 
 	const result: InitializeResult = {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
-			completionProvider: {
-				resolveProvider: true
-			}
+			completionProvider: { resolveProvider: true },
+			codeActionProvider: true
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -67,6 +77,12 @@ connection.onInitialize((params: InitializeParams) => {
 			workspaceFolders: {
 				supported: true
 			}
+		};
+	}
+
+	if (hasCodeActionLiteralsCapability) {
+		result.capabilities.codeActionProvider = {
+			codeActionKinds: ["quickfix"]
 		};
 	}
 	return result;
@@ -135,8 +151,23 @@ documents.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
+	const files = ["foo/bar.txt", "plip/plop.ts"];
+	connection.sendNotification("custom/loadFiles", [files]);
 	validateTextDocument(change.document);
 });
+
+connection.onCodeAction(provideCodeActions);
+
+async function provideCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
+	if (params.context.diagnostics.length === 0)
+		return [];
+
+	const document = documents.get(params.textDocument.uri);
+	if (document === undefined)
+		return [];
+	
+	return refactor(document, params);
+}
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
