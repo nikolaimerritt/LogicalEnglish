@@ -39,7 +39,7 @@ export class Template {
 	public static fromLeastGeneralGeneralisation(literals: string[]): Template | undefined {
 		// const allWords = literals.map((literal: string, index: number) => literal.replace(/\s+/g, ' ').split(' '));
 		const allWords = literals.map(literal => 
-			literal.replace(/\s+/g, ' ').split(' ')
+			literal.replace(/\s+/g, ' ').split(' ') 
 		);
 		const predicateWords = intersectionOf(allWords);
 
