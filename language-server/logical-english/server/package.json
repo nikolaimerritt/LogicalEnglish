@@ -12,6 +12,7 @@
 		"url": "https://github.com/Microsoft/vscode-extension-samples"
 	},
 	"dependencies": {
+		"@types/vscode": "^1.67.0",
 		"vscode-languageserver": "^7.0.0",
 		"vscode-languageserver-textdocument": "^1.0.4"
 	},

@@ -62,18 +62,18 @@ export function activate(context: ExtensionContext) {
 	);
 
 	// Start the client. This will also launch the server
-	commands.registerTextEditorCommand(
-		"logical-english-extension.sayHello", 
-		(textEditor: TextEditor, edit: TextEditorEdit) => {
-			console.log(textEditor.selection);
-	});
+	// commands.registerTextEditorCommand(
+	// 	"logical-english-extension.sayHello", 
+	// 	(textEditor: TextEditor, edit: TextEditorEdit) => {
+	// 		console.log(textEditor.selection);
+	// });
 
 	console.log("Client is starting language server.");
-	client.onReady().then(() => {
-		client.onNotification("custom/loadFiles", (files: Array<string>) => {
-			console.log(`Received custom/loadFiles message with files = ${files}`);
-		});
-	});
+	// client.onReady().then(() => {
+	// 	client.onNotification("custom/loadFiles", (files: Array<string>) => {
+	// 		console.log(`Received custom/loadFiles message with files = ${files}`);
+	// 	});
+	// });
 	client.start();
 }
 

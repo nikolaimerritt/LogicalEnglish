@@ -52,28 +52,28 @@
 			}
 		},
 		"languages": [
-            {
-                "id": "logical-english",
-                "aliases": [
-                    "Logical English",
-                    "logical-english",
+			{
+				"id": "logical-english",
+				"aliases": [
+					"Logical English",
+					"logical-english",
 					"logical english",
 					"logical_english",
 					"le"
-                ],
-                "extensions": [
-                    ".le"
-                ],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "grammars": [
-            {
-                "language": "logical-english",
-                "scopeName": "source.logical-english",
-                "path": "./syntaxes/logical-english.tmLanguage.json"
-            }
-        ],
+				],
+				"extensions": [
+					".le"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "logical-english",
+				"scopeName": "source.logical-english",
+				"path": "./syntaxes/logical-english.tmLanguage.json"
+			}
+		],
 		"commands": [
 			{
 				"command": "logical-english-extension.sayHello",
@@ -97,5 +97,8 @@
 		"eslint": "^8.13.0",
 		"mocha": "^9.2.1",
 		"typescript": "^4.7.2"
+	},
+	"dependencies": {
+		"@types/vscode": "^1.67.0"
 	}
 }

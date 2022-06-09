@@ -3,7 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-// Code taken entirely from https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+// Initial version taken from https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+// Sending code actions based on code at https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/server.ts
 
 import {
 	createConnection,
@@ -26,7 +27,8 @@ import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
 
-import { refactor } from "./refactor";
+import { quickfixes } from "./quickfixes";
+import { textDocumentDiagnostics } from "./validation";
 import { CodeActionKind, commands } from 'vscode';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -166,53 +168,14 @@ async function provideCodeActions(params: CodeActionParams): Promise<CodeAction[
 	if (document === undefined)
 		return [];
 	
-	return refactor(document, params);
+	return quickfixes(document, params);
 }
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
 
-	// The validator creates diagnostics for all uppercase words length 2 and more
-	const text = textDocument.getText();
-	const pattern = /\b(foo)|(bar)|(baz)\b/g;  // /\b[A-Z]{2,}\b/g;
-	let m: RegExpExecArray | null;
-
-	let problems = 0;
-	const diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-		problems++;
-		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Error,
-			range: {
-				start: textDocument.positionAt(m.index),
-				end: textDocument.positionAt(m.index + m[0].length)
-			},
-			message: `${m[0]} is a banned word.`,
-			source: 'ex'
-		};
-		if (hasDiagnosticRelatedInformationCapability) {
-			diagnostic.relatedInformation = [
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnostic.range)
-					},
-					message: 'Here is where I would put some extra info...'
-				},
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnostic.range)
-					},
-					message: '...that is asynchronously loaded in after an error has been detected.'
-				}
-			];
-		}
-		diagnostics.push(diagnostic);
-	}
-
-	// Send the computed diagnostics to VSCode.
+	const diagnostics = textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability, settings.maxNumberOfProblems, textDocument);
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
