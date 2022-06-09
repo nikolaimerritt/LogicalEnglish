@@ -36,6 +36,27 @@ export class Template {
 		return new Template(predicateName, terms);
 	}
 
+	public static fromLeastGeneralGeneralisation(literals: string[]): Template | undefined {
+		// const allWords = literals.map((literal: string, index: number) => literal.replace(/\s+/g, ' ').split(' '));
+		const allWords = literals.map(literal => 
+			literal.replace(/\s+/g, ' ').split(' ')
+		);
+		const predicateWords = intersectionOf(allWords);
+
+		const allTemplates: Template[] = []; // these should all have same signiature
+		for (let i = 0; i < literals.length; i++) {
+			const terms = allWords[i].filter(word => !predicateWords.includes(word));
+			allTemplates.push(Template.fromLiteral(literals[i], terms));
+		}
+		// check for whether all the templates produced are the same
+		for (let i = 1; i < allTemplates.length; i++) {
+			if (!allTemplates[i].hasSameSigniature(allTemplates[0]))
+				return undefined;
+		}
+
+		return allTemplates[0]; // could have returned any one of those templates -- they all have the same signiature
+	}
+
 	// chcks if `this` has same predicate name *and* same argument names / types as `other`
 	public equals(other: Template): boolean {
 		if (!this.hasSameSigniature(other))
@@ -55,6 +76,10 @@ export class Template {
 		&& other !== undefined
 		&& this.predicateName === other.predicateName 
 		&& this.argumentTypes.length === other.argumentTypes.length;
+	}
+
+	public toString(): string {
+		return `${this.predicateName}(${this.argumentTypes.join(', ')})`;
 	}
 
 	public extractTermsFromLiteral(literal: string): string[] {
@@ -90,10 +115,29 @@ export class Template {
 		// given literal L, template T
 		// extract terms of L, assuming that L matches T
 		// generate a template T' from L  using the extracted terms
-		// check if T' == T
+		// check if T' has same signiature as T
 	
 		const terms = this.extractTermsFromLiteral(literal);
 		const templateOfLiteral = Template.fromLiteral(literal, terms);
 		return this.hasSameSigniature(templateOfLiteral);
 	}
+}
+
+function intersectionOf<T>(lists: T[][]): T[] {
+	const allElements: T[] = [];
+	lists.forEach(list => {
+		list.forEach(el => {
+			if (!allElements.includes(el))
+				allElements.push(el);
+		});
+	});
+	// allElements is now a list of each element from each list
+
+	const intersection: T[] = [];
+	allElements.forEach(el => {
+		if (lists.every(list => list.includes(el)))
+			intersection.push(el);
+	});
+
+	return intersection;
 }

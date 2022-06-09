@@ -44,8 +44,6 @@ let hasDiagnosticRelatedInformationCapability = false;
 let hasCodeActionLiteralsCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
-	console.log("Saying hello from my own console :)");
-	connection.console.log("Server started -- saying hello");
 	const capabilities = params.capabilities;
 
 	// Does the client support the `workspace/configuration` request?

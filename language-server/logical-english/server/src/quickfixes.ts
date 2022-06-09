@@ -8,16 +8,13 @@ export function quickfixes(textDocument: TextDocument, params: CodeActionParams)
 	const codeActions: CodeAction[] = [];
 
 	params.context.diagnostics.forEach((diag) => {
-		const template = Template.fromString("*a person* likes to hug *a lemon* and eat");
 		const literals = [
 			'bob likes to hug jane and eat',
-			'bob likes to haggle jane and eat',
-			'bob likes to hug jane'
+			'alex likes to hug carl and eat',
+			'fred likes to hug adam and sit'
 		];
-
-		literals.forEach(literal => {
-			console.log(`'${literal}' matches template? ${template.matchesLiteral(literal)}`);
-		});
+		console.log(Template.fromLeastGeneralGeneralisation(literals)?.toString());
+		
 
 		if (diag.severity === DiagnosticSeverity.Error && diag.message.includes('is a banned word')) {
 			console.log(`Found a bad word ${textDocument.getText(diag.range)}`);
