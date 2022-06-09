@@ -1,6 +1,6 @@
 import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Position, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { Template, templateFromString } from './template';
+import { Template } from './template';
 
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
@@ -8,7 +8,17 @@ export function quickfixes(textDocument: TextDocument, params: CodeActionParams)
 	const codeActions: CodeAction[] = [];
 
 	params.context.diagnostics.forEach((diag) => {
-		const template = templateFromString("   *a happy man*   likes  to      pet   *an okay animal* with *a hand*   ");
+		const template = Template.fromString("*a person* likes to hug *a lemon* and eat");
+		const literals = [
+			'bob likes to hug jane and eat',
+			'bob likes to haggle jane and eat',
+			'bob likes to hug jane'
+		];
+
+		literals.forEach(literal => {
+			console.log(`'${literal}' matches template? ${template.matchesLiteral(literal)}`);
+		});
+
 		if (diag.severity === DiagnosticSeverity.Error && diag.message.includes('is a banned word')) {
 			console.log(`Found a bad word ${textDocument.getText(diag.range)}`);
 			codeActions.push({
@@ -19,7 +29,7 @@ export function quickfixes(textDocument: TextDocument, params: CodeActionParams)
 					changes: {
 						[params.textDocument.uri]: [{
 							range: findEndOfTemplates(textDocument), 
-							newText: `\ntemplateName = #${template.predicateName}#\ntemplateArgs = #${template.argumentTypes}#\n`
+							newText: '# hello #'
 						}]
 					}
 				}
