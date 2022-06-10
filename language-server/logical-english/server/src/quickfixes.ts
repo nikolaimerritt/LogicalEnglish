@@ -1,23 +1,23 @@
 import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Position, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
+import { literalsInDocument, templatesInDocument } from './validation';
 
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
-export function quickfixes(textDocument: TextDocument, params: CodeActionParams): CodeAction[] {
+export function quickfixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
 	const codeActions: CodeAction[] = [];
 
 	params.context.diagnostics.forEach((diag) => {
-		const literals = [
-			'bob likes to hug jane and eat',
-			'alex likes to hug carl and eat',
-			'fred likes to hug adam and sit'
-		];
-		console.log(Template.fromLeastGeneralGeneralisation(literals)?.toString());
+		console.log('Templates in document:');
+		templatesInDocument(document).forEach(template => console.log(template.toString()));
+
+		console.log('\n\nLiterals in document:');
+		literalsInDocument(document).forEach(literal => console.log(`@${literal}@`));
 		
 
 		if (diag.severity === DiagnosticSeverity.Error && diag.message.includes('is a banned word')) {
-			console.log(`Found a bad word ${textDocument.getText(diag.range)}`);
+			console.log(`Found a bad word ${document.getText(diag.range)}`);
 			codeActions.push({
 				title: "Add an underscore at the start.",
 				kind: CodeActionKind.QuickFix,
@@ -25,7 +25,7 @@ export function quickfixes(textDocument: TextDocument, params: CodeActionParams)
 				edit: {
 					changes: {
 						[params.textDocument.uri]: [{
-							range: findEndOfTemplates(textDocument), 
+							range: findEndOfTemplates(document), 
 							newText: '# hello #'
 						}]
 					}

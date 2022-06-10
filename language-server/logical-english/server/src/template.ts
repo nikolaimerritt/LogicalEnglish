@@ -28,19 +28,16 @@ export class Template {
 	}
 
 	public static fromLiteral(literal: string, terms: string[]): Template {
-		literal = literal.replace(/\s+/g, ' ');
-		const literalWords = literal.split(' ');
-		const predicateWords = literalWords.filter((word: string, index: number) => !terms.includes(word));
+		const literalWords = literal.split(/\s+/g);
+		const predicateWords = literalWords.filter((word: string) => !terms.includes(word));
 		const predicateName = predicateWords.join('_');
 	
 		return new Template(predicateName, terms);
 	}
 
-	public static fromLeastGeneralGeneralisation(literals: string[]): Template | undefined {
+	public static fromLggOf(literals: string[]): Template | undefined {
 		// const allWords = literals.map((literal: string, index: number) => literal.replace(/\s+/g, ' ').split(' '));
-		const allWords = literals.map(literal => 
-			literal.replace(/\s+/g, ' ').split(' ') 
-		);
+		const allWords = literals.map(literal => literal.split(/\s+/g));
 		const predicateWords = intersectionOf(allWords);
 
 		const allTemplates: Template[] = []; // these should all have same signiature
@@ -83,8 +80,7 @@ export class Template {
 	}
 
 	public extractTermsFromLiteral(literal: string): string[] {
-		literal = literal.replace(/\s+/g, ' ');
-		const literalWords = literal.split(' ');
+		const literalWords = literal.split(/\s+/g);
 		const predicateWords = this.predicateName.split('_');
 		
 		const terms: string[] = [];
