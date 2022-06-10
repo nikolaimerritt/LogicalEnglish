@@ -1,38 +1,91 @@
-export class Template {
-	public readonly predicateName: string;
-	public readonly argumentTypes: string[];
+import { intersectionOf } from './utils';
 
-	public constructor(_predicateName: string, _argumentTypes: string[]) {
-		this.predicateName = _predicateName;
-		this.argumentTypes = _argumentTypes;
+export enum TemplateElementKind {
+	Argument,
+	Word
+}
+
+export type TemplateArgument = {
+	name: string,
+	type: TemplateElementKind.Argument
+}
+
+export type PredicateWord = {
+	word: string,
+	type: TemplateElementKind.Word
+}
+
+export type TemplateElement = TemplateArgument | PredicateWord;
+
+export class Template {
+	private readonly elements: TemplateElement[];
+
+	private constructor(_elements: TemplateElement[]) {
+		this.elements = _elements;
 	}
 
 	public static fromString(templateString: string): Template {
-		const argumentRegex = /\*(?:a|an) (\w[\w|\s]+\w)\*/g;
-		let matches: RegExpMatchArray | null;
-		const argumentNames: string[] = [];
-		let templateWithoutArguments = templateString;
+		const argumentBlockRegex = /((?:\*)(?:a|an) (?:\w[\w|\s]+\w)\*)/g;
+		// let matches: RegExpMatchArray | null;
+		// const argumentNames: string[] = [];
+		// let templateWithoutArguments = templateString;
 		
-		while ((matches = argumentRegex.exec(templateString)) != null) {
-			let argName = matches[1];
-			argName = argName.replace(/\s+/g, '_');
-			argName = argName.toLowerCase();
-			argumentNames.push(argName);
+		// while ((matches = argumentRegex.exec(templateString)) != null) {
+		// 	let argName = matches[1];
+		// 	argName = argName.replace(/\s+/g, '_');
+		// 	argName = argName.toLowerCase();
+		// 	argumentNames.push(argName);
 
-			templateWithoutArguments = templateWithoutArguments.replace(matches[0], "");
-		}	
-		templateWithoutArguments = templateWithoutArguments.trim();
-		templateWithoutArguments = templateWithoutArguments.replace(/\s+/g, '_');
+		// 	templateWithoutArguments = templateWithoutArguments.replace(matches[0], "");
+		// }	
+		// templateWithoutArguments = templateWithoutArguments.trim();
+		// templateWithoutArguments = templateWithoutArguments.replace(/\s+/g, '_');
 
-		return new Template(templateWithoutArguments, argumentNames);
+		// // use .split(/(arg 1|arg 2|...|arg n)/g) on template string
+
+
+		// return new Template(templateWithoutArguments, argumentNames);
+		const elementStrings = templateString.split(argumentBlockRegex);
+		const argumentNameRegex =  /\*(an? \w[\w|\s]+\w)\*/;
+		const elements: TemplateElement[] = elementStrings
+		.map(el => el.trim())
+		.filter(el => el.length > 0)
+		.map(el => {
+			const argName = el.match(argumentNameRegex);
+			if (argName !== null) 
+				return { name: argName[1] } as TemplateArgument;
+			
+			return { word: el } as PredicateWord;
+		});
+
+		return new Template(elements);
 	}
 
-	public static fromLiteral(literal: string, terms: string[]): Template {
-		const literalWords = literal.split(/\s+/g);
-		const predicateWords = literalWords.filter((word: string) => !terms.includes(word));
-		const predicateName = predicateWords.join('_');
+	// public static fromLiteral(literal: string, terms: string[]): Template {
+	// 	const literalWords = literal.split(/\s+/g);
+	// 	const predicateWords = literalWords.filter((word: string) => !terms.includes(word));
+	// 	const predicateName = predicateWords.join('_');
 	
-		return new Template(predicateName, terms);
+	// 	return new Template(predicateName, terms);
+	// }
+
+	public static fromLiteral(literal: string, terms: string[]): Template {
+		const argumentBlockRegex = RegExp(`(?:(${terms.join('|')}))`, 'g');
+
+		const elementStrings = literal.split(argumentBlockRegex);
+		console.log("Element strings:");
+		console.log(elementStrings);
+
+		const elements: TemplateElement[] = elementStrings
+		.map(el => el.trim())
+		.filter(el => el.length > 0)
+		.map(el => {
+			if (terms.includes(el)) 
+				return { name: el } as TemplateArgument;
+			return { word: el } as PredicateWord;
+		});
+
+		return new Template(elements);
 	}
 
 	public static fromLggOf(literals: string[]): Template | undefined {
@@ -59,8 +112,8 @@ export class Template {
 		if (!this.hasSameSigniature(other))
 			return false;
 		
-		for (let i = 0; i < this.argumentTypes.length; i++) {
-			if (this.argumentTypes[i] !== other.argumentTypes[i])
+		for (let i = 0; i < this.elements.length; i++) {
+			if (this.elements[i] !== other.elements[i])
 				return false;
 		}
 
@@ -69,19 +122,45 @@ export class Template {
 
 	// checks if other has the same predicate name and argument count
 	public hasSameSigniature(other: Template): boolean {
-		return other != null 
-		&& other !== undefined
-		&& this.predicateName === other.predicateName 
-		&& this.argumentTypes.length === other.argumentTypes.length;
+		if (other === null)
+			return false;
+		
+		if (other === undefined)
+			return false;
+		
+		if (this.elements.length !== other.elements.length)
+			return false;
+		
+		for (let i = 0; i < this.elements.length; i++) {
+			if (this.elements[i].type !== other.elements[i].type)
+				return false;
+			
+			if (this.elements[i].type === TemplateElementKind.Word 
+					&& other.elements[i].type === TemplateElementKind.Word
+					&& (this.elements[i] as PredicateWord).word !== (other.elements[i] as PredicateWord).word)
+				
+				return false;
+		}
+
+		return true;
 	}
 
 	public toString(): string {
-		return `${this.predicateName}(${this.argumentTypes.join(', ')})`;
+		return this.elements
+		.map(el => {
+			if (el.type === TemplateElementKind.Argument)
+				return `*${el.name}*`;
+			
+			return el.word;
+		})
+		.join(' ');
 	}
 
 	public extractTermsFromLiteral(literal: string): string[] {
 		const literalWords = literal.split(/\s+/g);
-		const predicateWords = this.predicateName.split('_');
+		const predicateWords = this.elements
+		.filter(el => el.type === TemplateElementKind.Word)
+		.map(w => (w as PredicateWord).word);
 		
 		const terms: string[] = [];
 		let currentTerm = '';
@@ -119,21 +198,3 @@ export class Template {
 	}
 }
 
-function intersectionOf<T>(lists: T[][]): T[] {
-	const allElements: T[] = [];
-	lists.forEach(list => {
-		list.forEach(el => {
-			if (!allElements.includes(el))
-				allElements.push(el);
-		});
-	});
-	// allElements is now a list of each element from each list
-
-	const intersection: T[] = [];
-	allElements.forEach(el => {
-		if (lists.every(list => list.includes(el)))
-			intersection.push(el);
-	});
-
-	return intersection;
-}
