@@ -28,7 +28,7 @@ import {
 } from 'vscode-languageserver-textdocument';
 
 import { quickfixes } from "./quickfixes";
-import { textDocumentDiagnostics } from "./validation";
+import { textDocumentDiagnostics } from "./diagnostics";
 import { CodeActionKind, commands } from 'vscode';
 
 // Create a connection for the server, using Node's IPC as a transport.
