@@ -7,16 +7,15 @@ import { literalsInDocument, sectionRange, templatesInDocument } from './utils';
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
 export function quickfixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
-	const literal = 'bob spence likes shoes for five pounds';
-	const terms = ['bob spence', 'shoes', 'five pounds'];
-	console.log("Template from literal + terms:");
-	console.log(Template.fromLiteral(literal, terms));
-
+	// debugOnStart();
+	
 	return [
 		...bannedWordFixes(document, params),
 		...literalWithNoTemplateFixes(document, params)
 	];
 }
+
+
 
 
 function bannedWordFixes(document: TextDocument, params: CodeActionParams): CodeAction[] {

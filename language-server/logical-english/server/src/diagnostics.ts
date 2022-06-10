@@ -17,6 +17,7 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { templatesInDocument, literalsInDocument } from './utils';
+import { Template } from './template';
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -29,13 +30,28 @@ export const globalSettings: ExampleSettings = {
 export const literalHasNoTemplateMessage = "Literal has no template.";
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {
-	const bannedWords = bannedWordDiagnostics(document);
-	const literalHasNoTemplate = literalHasNoTemplateDiagnostics(document);
+	debugOnStart();
+
 	return [
-		...bannedWords,
-		...literalHasNoTemplate
+		...bannedWordDiagnostics(document),
+		... literalHasNoTemplateDiagnostics(document)
 	]
 	.slice(0, maxNumberOfProblems);
+}
+
+function debugOnStart() {
+	// const templateStr = "*a person* really likes *a hat*";
+	// const template = Template.fromString(templateStr);
+
+	// // console.log(`Template ${template.toString()} extracting terms from ${literal}:`);
+	// // console.log(template.extractTermsFromLiteral(literal));
+	// [
+	// 	'bob really likes making food', 
+	// 	'bob doesnt likes making food'
+	// ]
+	// .forEach(literal => 
+	// 	console.log(`Template ${template.toString()} matches literal ${literal}? ${template.matchesLiteral(literal)}`)
+	// );
 }
 
 

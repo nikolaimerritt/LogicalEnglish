@@ -5,14 +5,22 @@ export enum TemplateElementKind {
 	Word
 }
 
-export type TemplateArgument = {
-	name: string,
-	type: TemplateElementKind.Argument
+export class TemplateArgument {
+	public readonly name: string;
+	public readonly type = TemplateElementKind.Argument;
+
+	constructor(_name: string) {
+		this.name = _name;
+	}
 }
 
-export type PredicateWord = {
-	word: string,
-	type: TemplateElementKind.Word
+export class PredicateWord {
+	public readonly word: string;
+	public readonly type = TemplateElementKind.Word;
+
+	constructor(_word: string) {
+		this.word = _word;
+	}
 }
 
 export type TemplateElement = TemplateArgument | PredicateWord;
@@ -25,64 +33,43 @@ export class Template {
 	}
 
 	public static fromString(templateString: string): Template {
-		const argumentBlockRegex = /((?:\*)(?:a|an) (?:\w[\w|\s]+\w)\*)/g;
-		// let matches: RegExpMatchArray | null;
-		// const argumentNames: string[] = [];
-		// let templateWithoutArguments = templateString;
-		
-		// while ((matches = argumentRegex.exec(templateString)) != null) {
-		// 	let argName = matches[1];
-		// 	argName = argName.replace(/\s+/g, '_');
-		// 	argName = argName.toLowerCase();
-		// 	argumentNames.push(argName);
-
-		// 	templateWithoutArguments = templateWithoutArguments.replace(matches[0], "");
-		// }	
-		// templateWithoutArguments = templateWithoutArguments.trim();
-		// templateWithoutArguments = templateWithoutArguments.replace(/\s+/g, '_');
-
-		// // use .split(/(arg 1|arg 2|...|arg n)/g) on template string
-
-
-		// return new Template(templateWithoutArguments, argumentNames);
+		const argumentBlockRegex = /((?:\*)an? (?:[\w|\s]+)\*)/g;
 		const elementStrings = templateString.split(argumentBlockRegex);
-		const argumentNameRegex =  /\*(an? \w[\w|\s]+\w)\*/;
+
+		// console.log("Element strings:");
+		// console.log(elementStrings);
+
+		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
 		const elements: TemplateElement[] = elementStrings
 		.map(el => el.trim())
 		.filter(el => el.length > 0)
 		.map(el => {
 			const argName = el.match(argumentNameRegex);
 			if (argName !== null) 
-				return { name: argName[1] } as TemplateArgument;
+				return new TemplateArgument(argName[1]);
+				// return { name: argName[1] } as TemplateArgument;
 			
-			return { word: el } as PredicateWord;
+			return new PredicateWord(el);
+			// return { word: el } as PredicateWord;
 		});
 
 		return new Template(elements);
 	}
 
-	// public static fromLiteral(literal: string, terms: string[]): Template {
-	// 	const literalWords = literal.split(/\s+/g);
-	// 	const predicateWords = literalWords.filter((word: string) => !terms.includes(word));
-	// 	const predicateName = predicateWords.join('_');
-	
-	// 	return new Template(predicateName, terms);
-	// }
-
 	public static fromLiteral(literal: string, terms: string[]): Template {
 		const argumentBlockRegex = RegExp(`(?:(${terms.join('|')}))`, 'g');
 
 		const elementStrings = literal.split(argumentBlockRegex);
-		console.log("Element strings:");
-		console.log(elementStrings);
+		// console.log("Element strings:");
+		// console.log(elementStrings);
 
 		const elements: TemplateElement[] = elementStrings
 		.map(el => el.trim())
 		.filter(el => el.length > 0)
 		.map(el => {
 			if (terms.includes(el)) 
-				return { name: el } as TemplateArgument;
-			return { word: el } as PredicateWord;
+				return new TemplateArgument(el);
+			return new PredicateWord(el);
 		});
 
 		return new Template(elements);
@@ -138,7 +125,6 @@ export class Template {
 			if (this.elements[i].type === TemplateElementKind.Word 
 					&& other.elements[i].type === TemplateElementKind.Word
 					&& (this.elements[i] as PredicateWord).word !== (other.elements[i] as PredicateWord).word)
-				
 				return false;
 		}
 
@@ -160,7 +146,8 @@ export class Template {
 		const literalWords = literal.split(/\s+/g);
 		const predicateWords = this.elements
 		.filter(el => el.type === TemplateElementKind.Word)
-		.map(w => (w as PredicateWord).word);
+		.map(w => (w as PredicateWord).word)
+		.flatMap(word => word.split(' '));
 		
 		const terms: string[] = [];
 		let currentTerm = '';
@@ -175,7 +162,7 @@ export class Template {
 			}
 			else {
 				if (currentTerm.length !== 0)
-					currentTerm += '_';
+					currentTerm += ' ';
 				currentTerm += word;
 			}
 		});
