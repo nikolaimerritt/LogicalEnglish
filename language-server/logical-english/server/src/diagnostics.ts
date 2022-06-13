@@ -43,11 +43,11 @@ function debugOnStart() {
 	const litties = [
 		'bob spence really likes jam and pickles',
 		'angela really likes cats and babies',
-		'alex rider hates cats and mice'
+		'alex rider really likes cats and mice'
 	];
 
 	console.log('LGG template is:');
-	console.log(Template.fromLGG(litties));
+	console.log(Template.fromLGG(litties)?.toString());
 }
 
 

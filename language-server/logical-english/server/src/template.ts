@@ -32,6 +32,17 @@ export class Template {
 		this.elements = _elements;
 	}
 
+	private static readonly _variableNames = [
+		'an A',
+		'a B',
+		'a C',
+		'a D',
+		'an E',
+		'an F',
+		'a G',
+		'an H'
+	];
+
 	public static fromString(templateString: string): Template {
 		const argumentBlockRegex = /((?:\*)an? (?:[\w|\s]+)\*)/g;
 		const elementStrings = templateString.split(argumentBlockRegex);
@@ -40,13 +51,14 @@ export class Template {
 		// console.log(elementStrings);
 
 		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
+		let variableIdx = 0;
 		const elements: TemplateElement[] = elementStrings
 		.map(el => el.trim())
 		.filter(el => el.length > 0)
 		.map(el => {
 			const argName = el.match(argumentNameRegex);
 			if (argName !== null) 
-				return new TemplateArgument(argName[1]);
+				return new TemplateArgument(Template._variableNames[variableIdx++]);
 			
 			return new PredicateWord(el);
 		});
@@ -60,35 +72,18 @@ export class Template {
 		// console.log("Element strings:");
 		// console.log(elementStrings);
 
+		let variableIdx = 0;
 		const elements: TemplateElement[] = elementStrings
 		.map(el => el.trim())
 		.filter(el => el.length > 0)
 		.map(el => {
 			if (terms.includes(el)) 
-				return new TemplateArgument(el);
+				return new TemplateArgument(Template._variableNames[variableIdx++]);
 			return new PredicateWord(el);
 		});
 
 		return new Template(elements);
 	}
-
-	// public static fromLggOf(literals: string[]): Template | undefined {
-	// 	const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
-	// 	const predicateWords = intersectionOf(wordsFromEachLiteral);
-
-	// 	const allTemplates: Template[] = []; // these should all have same signiature
-	// 	for (let i = 0; i < literals.length; i++) {
-	// 		const terms = wordsFromEachLiteral[i].filter(word => !predicateWords.includes(word));
-	// 		allTemplates.push(Template.fromLiteral(literals[i], terms));
-	// 	}
-	// 	// check for whether all the templates produced are the same
-	// 	for (let i = 1; i < allTemplates.length; i++) {
-	// 		if (!allTemplates[i].hasSameSigniature(allTemplates[0]))
-	// 			return undefined;
-	// 	}
-
-	// 	return allTemplates[0]; // could have returned any one of those templates -- they all have the same signiature
-	// }
 
 	public static fromLGG(literals: string[]): Template | undefined {
 		// bob spence really likes apples and pears
