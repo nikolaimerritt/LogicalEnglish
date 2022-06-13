@@ -29,7 +29,7 @@ export const globalSettings: ExampleSettings = {
 
 export const literalHasNoTemplateMessage = "Literal has no template.";
 
-export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {
+export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
 	debugOnStart();
 
 	return [
@@ -40,18 +40,14 @@ export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapabilit
 }
 
 function debugOnStart() {
-	// const templateStr = "*a person* really likes *a hat*";
-	// const template = Template.fromString(templateStr);
+	const litties = [
+		'bob spence really likes jam and pickles',
+		'angela really likes cats and babies',
+		'alex rider hates cats and mice'
+	];
 
-	// // console.log(`Template ${template.toString()} extracting terms from ${literal}:`);
-	// // console.log(template.extractTermsFromLiteral(literal));
-	// [
-	// 	'bob really likes making food', 
-	// 	'bob doesnt likes making food'
-	// ]
-	// .forEach(literal => 
-	// 	console.log(`Template ${template.toString()} matches literal ${literal}? ${template.matchesLiteral(literal)}`)
-	// );
+	console.log('LGG template is:');
+	console.log(Template.fromLGG(litties));
 }
 
 

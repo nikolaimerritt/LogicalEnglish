@@ -47,10 +47,8 @@ export class Template {
 			const argName = el.match(argumentNameRegex);
 			if (argName !== null) 
 				return new TemplateArgument(argName[1]);
-				// return { name: argName[1] } as TemplateArgument;
 			
 			return new PredicateWord(el);
-			// return { word: el } as PredicateWord;
 		});
 
 		return new Template(elements);
@@ -58,7 +56,6 @@ export class Template {
 
 	public static fromLiteral(literal: string, terms: string[]): Template {
 		const argumentBlockRegex = RegExp(`(?:(${terms.join('|')}))`, 'g');
-
 		const elementStrings = literal.split(argumentBlockRegex);
 		// console.log("Element strings:");
 		// console.log(elementStrings);
@@ -75,23 +72,41 @@ export class Template {
 		return new Template(elements);
 	}
 
-	public static fromLggOf(literals: string[]): Template | undefined {
-		// const allWords = literals.map((literal: string, index: number) => literal.replace(/\s+/g, ' ').split(' '));
-		const allWords = literals.map(literal => literal.split(/\s+/g));
-		const predicateWords = intersectionOf(allWords);
+	// public static fromLggOf(literals: string[]): Template | undefined {
+	// 	const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
+	// 	const predicateWords = intersectionOf(wordsFromEachLiteral);
 
-		const allTemplates: Template[] = []; // these should all have same signiature
-		for (let i = 0; i < literals.length; i++) {
-			const terms = allWords[i].filter(word => !predicateWords.includes(word));
-			allTemplates.push(Template.fromLiteral(literals[i], terms));
-		}
-		// check for whether all the templates produced are the same
-		for (let i = 1; i < allTemplates.length; i++) {
-			if (!allTemplates[i].hasSameSigniature(allTemplates[0]))
-				return undefined;
-		}
+	// 	const allTemplates: Template[] = []; // these should all have same signiature
+	// 	for (let i = 0; i < literals.length; i++) {
+	// 		const terms = wordsFromEachLiteral[i].filter(word => !predicateWords.includes(word));
+	// 		allTemplates.push(Template.fromLiteral(literals[i], terms));
+	// 	}
+	// 	// check for whether all the templates produced are the same
+	// 	for (let i = 1; i < allTemplates.length; i++) {
+	// 		if (!allTemplates[i].hasSameSigniature(allTemplates[0]))
+	// 			return undefined;
+	// 	}
 
-		return allTemplates[0]; // could have returned any one of those templates -- they all have the same signiature
+	// 	return allTemplates[0]; // could have returned any one of those templates -- they all have the same signiature
+	// }
+
+	public static fromLGG(literals: string[]): Template | undefined {
+		// bob spence really likes apples and pears
+		// mary really likes kiwi and pecan tart
+		const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
+		const predicateWords = intersectionOf(wordsFromEachLiteral);
+		// assumes that literals all conform to same template
+		// takes first literal, compares against predicate words to construct a template
+		const template = Template.fromLiteral(
+			literals[0],
+			Template._extractTermsFromLiteral(literals[0], predicateWords)
+		);
+
+		// now check that all literals match the template
+		if (literals.some(literal => !template.matchesLiteral(literal)))
+			return undefined;
+		
+		return template;
 	}
 
 	// chcks if `this` has same predicate name *and* same argument names / types as `other`
@@ -143,12 +158,16 @@ export class Template {
 	}
 
 	public extractTermsFromLiteral(literal: string): string[] {
-		const literalWords = literal.split(/\s+/g);
 		const predicateWords = this.elements
 		.filter(el => el.type === TemplateElementKind.Word)
 		.map(w => (w as PredicateWord).word)
 		.flatMap(word => word.split(' '));
+
+		return Template._extractTermsFromLiteral(literal, predicateWords);
+	}
 		
+	private static _extractTermsFromLiteral(literal: string, predicateWords: string[]) {
+		const literalWords = literal.split(/\s+/g);
 		const terms: string[] = [];
 		let currentTerm = '';
 
@@ -172,6 +191,7 @@ export class Template {
 
 		return terms;
 	}
+
 
 	public matchesLiteral(literal: string): boolean {
 		// given literal L, template T

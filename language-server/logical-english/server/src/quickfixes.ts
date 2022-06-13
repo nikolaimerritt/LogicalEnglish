@@ -52,7 +52,7 @@ function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionPa
 	if (literalsWithNoTemplate.length === 0)
 		return [];
 	
-	const lggTemplate = Template.fromLggOf(literalsWithNoTemplate);
+	const lggTemplate = Template.fromLGG(literalsWithNoTemplate);
 	if (lggTemplate === undefined)
 		return [];
 	
