@@ -83,3 +83,9 @@ export function intersectionOf<T>(lists: T[][]): T[] {
 
 	return intersection;
 }
+
+export function removeBlanks(words: string[]): string[] {
+	return words
+	.map(word => word.trim())
+	.filter(word => word.length > 0);
+}

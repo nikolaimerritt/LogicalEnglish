@@ -1,4 +1,4 @@
-import { intersectionOf } from './utils';
+import { intersectionOf, removeBlanks } from './utils';
 
 export enum TemplateElementKind {
 	Argument,
@@ -67,15 +67,15 @@ export class Template {
 	}
 
 	public static fromLiteral(literal: string, terms: string[]): Template {
+		terms = removeBlanks(terms);		
 		const argumentBlockRegex = RegExp(`(?:(${terms.join('|')}))`, 'g');
-		const elementStrings = literal.split(argumentBlockRegex);
+		const elementStrings = removeBlanks(literal.split(argumentBlockRegex));
+		
 		// console.log("Element strings:");
 		// console.log(elementStrings);
 
 		let variableIdx = 0;
 		const elements: TemplateElement[] = elementStrings
-		.map(el => el.trim())
-		.filter(el => el.length > 0)
 		.map(el => {
 			if (terms.includes(el)) 
 				return new TemplateArgument(Template._variableNames[variableIdx++]);
@@ -92,9 +92,10 @@ export class Template {
 		const predicateWords = intersectionOf(wordsFromEachLiteral);
 		// assumes that literals all conform to same template
 		// takes first literal, compares against predicate words to construct a template
+		const terms = Template._extractTermsFromLiteral(literals[0], predicateWords);
 		const template = Template.fromLiteral(
 			literals[0],
-			Template._extractTermsFromLiteral(literals[0], predicateWords)
+			terms
 		);
 
 		// now check that all literals match the template
@@ -193,7 +194,8 @@ export class Template {
 		// extract terms of L, assuming that L matches T
 		// generate a template T' from L  using the extracted terms
 		// check if T' has same signiature as T
-	
+		
+		literal = literal.replace(/\./g, '');
 		const terms = this.extractTermsFromLiteral(literal);
 		const templateOfLiteral = Template.fromLiteral(literal, terms);
 		return this.hasSameSigniature(templateOfLiteral);

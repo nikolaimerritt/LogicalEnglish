@@ -10,7 +10,7 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 	// debugOnStart();
 	
 	return [
-		...bannedWordFixes(document, params),
+		//...bannedWordFixes(document, params),
 		...literalWithNoTemplateFixes(document, params)
 	];
 }
@@ -56,9 +56,14 @@ function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionPa
 	if (lggTemplate === undefined)
 		return [];
 	
-	const endOfTemplates = sectionRange('templates', document);
-	if (endOfTemplates === undefined)
+	const templatesRange = sectionRange('templates', document);
+	if (templatesRange === undefined)
 		return [];
+	
+	const endOfTemplates: Range = {
+		start: templatesRange.end,
+		end: templatesRange.end
+	};
 	
 	
 	params.context.diagnostics.forEach(diag => {
@@ -71,7 +76,7 @@ function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionPa
 					changes: {
 						[params.textDocument.uri]: [{
 							range: endOfTemplates,
-							newText: lggTemplate.toString()
+							newText: `${lggTemplate.toString()} \n`
 						}]
 					}
 				}
