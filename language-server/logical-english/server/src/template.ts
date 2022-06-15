@@ -209,8 +209,36 @@ export class Template {
 		return this.hasSameSigniature(templateOfLiteral);
 	}
 
-	public matchesIncompleteLiteral(literal: string): boolean {
-		return true;
+	// *an X*        really likes   *an object*   with value *a value*
+	// bob spence    really likes   plates        wit   
+	// score = (1 + 0.5) / 2
+	public matchScore(literal: string): number { // 0 <= return value <= 1
+		let score = 0;
+		// score = number of predicates that appear consecutively in literal
+		// if the literal ends with the beginning of a predicate, add 0.5
+		// normalise score by amount of predicates
+		
+		for (const { word } of this.predicateWords()) {
+			const wordIdx = literal.indexOf(word);
+			if (wordIdx === -1) {
+				const lastLiteralWord = literal.split(/\s+/g).at(-1);
+				if (lastLiteralWord !== undefined && word.startsWith(lastLiteralWord.trim()))
+					score += 0.5;
+				
+				break;
+			}
+			
+			score++;
+			literal = literal.slice(wordIdx + 1, undefined);
+		}
+		return score / this.predicateWords().length;
 	}
+
+
+	private predicateWords(): PredicateWord[] {
+		return this.elements
+		.filter(el => el.type === TemplateElementKind.Word)
+		.map(el => el as PredicateWord);
+	} 
 }
 

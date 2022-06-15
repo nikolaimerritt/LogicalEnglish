@@ -30,7 +30,7 @@ export const globalSettings: ExampleSettings = {
 export const literalHasNoTemplateMessage = "Literal has no template.";
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
-	// debugOnStart();
+	debugOnStart();
 
 	return [
 		...bannedWordDiagnostics(document),
@@ -40,10 +40,19 @@ export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapabilit
 }
 
 function debugOnStart() {
-	const line = 'rudolph is quite happy if rudolph is a man and rudolph has a friend';
-	const character = 29;
-	const literal = literalAtPosition(line, character);
-	console.log(`literal at char ${character} = ${literal}`);
+	const template = Template.fromString('*a person* really likes *an object* with value *a value*');
+	const incompleteLiterals = [
+		'bob spence really likes plates with value 5',
+		'bob spence really likes plates wit',
+		'bob spence really likes',
+		'bob spence reall',
+		'bob spence',
+		'roses are red violets are blue'
+	];
+
+	incompleteLiterals.forEach(literal => {
+		console.log(`"${literal}" \t has score = ${template.matchScore(literal)}`);
+	});
 }
 
 

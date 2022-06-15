@@ -27,12 +27,13 @@ function literalCompletion(document: TextDocument, params: TextDocumentPositionP
 	
 	const completions: CompletionItem[] = [];
 	templates.forEach(template => {
-		if (template.matchesIncompleteLiteral(literal))
+		if (template.matchScore(literal) > 0)
 			completions.push({
 				label: template.toString(),
 				kind: CompletionItemKind.Class,
 				insertTextFormat: InsertTextFormat.Snippet,
-				insertText: template.toSnippet()
+				insertText: template.toSnippet(),
+				sortText: template.matchScore(literal).toString()
 			});
 	});
 
