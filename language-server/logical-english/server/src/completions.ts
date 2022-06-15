@@ -1,7 +1,6 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { CompletionItem, CompletionItemKind, /* InsertReplaceEdit,*/ TextDocumentPositionParams, InsertTextFormat } from "vscode-languageserver";
 import { literalAtPosition, sectionRange, templatesInDocument } from './utils';
-// import { InsertTextFormat } from 'vscode-languageclient';
 
 
 export function provideCompletions(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {	
@@ -30,9 +29,10 @@ function literalCompletion(document: TextDocument, params: TextDocumentPositionP
 	templates.forEach(template => {
 		if (template.matchesIncompleteLiteral(literal))
 			completions.push({
-				label: template.toSnippet(),
-				kind: CompletionItemKind.Text,
-				insertTextFormat: InsertTextFormat.Snippet
+				label: template.toString(),
+				kind: CompletionItemKind.Class,
+				insertTextFormat: InsertTextFormat.Snippet,
+				insertText: template.toSnippet()
 			});
 	});
 

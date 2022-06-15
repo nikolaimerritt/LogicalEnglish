@@ -49,6 +49,8 @@ connection.onInitialize((params: InitializeParams) => {
 	hasConfigurationCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.configuration
 	);
+	console.log('Completion capabilities:');
+	console.log(capabilities.textDocument?.completion);
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
 	);
