@@ -44,20 +44,17 @@ export function templatesInDocument(document: TextDocument): Template[] {
 
 export function literalsInDocument(document: TextDocument): string[] {
 	const ruleRange = sectionRange('knowledge base', document);
-	console.log('Rule range:');
-	console.log(ruleRange);
-
 	if (ruleRange === undefined)
 		return [];
 
-	const clauses = document.getText()
+	const lines = document.getText()
 	.split('\n')
 	.slice(ruleRange.start.line, ruleRange.end.line)
 	.map(clause => clause.trim())
 	.filter(clause => clause.length > 0);
 	
 	const connectives = /\b(?:if|and|it is the case that|it is not the case that)\b/g;
-	const literals = clauses
+	const literals = lines
 	.flatMap(rule => rule.split(connectives))
 	.map(rule => rule.trim().replace('.', ''))
 	.filter(rule => rule.length > 0);
@@ -88,4 +85,23 @@ export function removeBlanks(words: string[]): string[] {
 	return words
 	.map(word => word.trim())
 	.filter(word => word.length > 0);
+}
+
+
+export function literalAtPosition(line: string, characterOffset: number): string | undefined {
+	const connectives = /\b(?:if|and|it is the case that|it is not the case that)\b/g;
+	const literals = line
+	.split(connectives)
+	.map(literal => literal.trim().replace('.', ''))
+	.filter(literal => literal.length > 0);
+
+	for (const literal of literals) {
+		const startPos = line.indexOf(literal);
+		const endPos = startPos + literal.length;
+
+		if (startPos <= characterOffset && characterOffset <= endPos)
+			return literal;
+	}
+
+	return undefined;
 }

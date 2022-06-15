@@ -16,7 +16,7 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { templatesInDocument, literalsInDocument } from './utils';
+import { templatesInDocument, literalsInDocument, literalAtPosition } from './utils';
 import { Template } from './template';
 
 export interface ExampleSettings {
@@ -30,7 +30,7 @@ export const globalSettings: ExampleSettings = {
 export const literalHasNoTemplateMessage = "Literal has no template.";
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
-	debugOnStart();
+	// debugOnStart();
 
 	return [
 		...bannedWordDiagnostics(document),
@@ -40,14 +40,10 @@ export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapabilit
 }
 
 function debugOnStart() {
-	const litties = [
-		'bob spence really likes jam and pickles',
-		'angela really likes cats and babies',
-		'alex rider really likes cats and mice'
-	];
-
-	console.log('LGG template is:');
-	console.log(Template.fromLGG(litties)?.toString());
+	const line = 'rudolph is quite happy if rudolph is a man and rudolph has a friend';
+	const character = 29;
+	const literal = literalAtPosition(line, character);
+	console.log(`literal at char ${character} = ${literal}`);
 }
 
 

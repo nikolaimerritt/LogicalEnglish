@@ -2,7 +2,7 @@ import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Posit
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
 import { literalHasNoTemplateMessage } from './diagnostics';
-import { literalsInDocument, sectionRange, templatesInDocument } from './utils';
+import { literalsInDocument, sectionRange, templatesInDocument, literalAtPosition } from './utils';
 
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
@@ -15,6 +15,12 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 	];
 }
 
+function debugOnStart() {
+	const line = 'rudolph is quite happy if rudolph is a man and rudolph has a friend';
+	const character = 29;
+	const literal = literalAtPosition(line, character);
+	console.log(`literal at char ${character} = ${literal}`);
+}
 
 
 

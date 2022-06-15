@@ -31,8 +31,7 @@ export function activate(context: ExtensionContext) {
 	const serverOptions: ServerOptions = {
 		run: { 
 			module: serverModule, 
-			transport: TransportKind.ipc ,
-			options: debugOptions // should only be here for debugging!
+			transport: TransportKind.ipc
 		},
 		debug: {
 			module: serverModule,

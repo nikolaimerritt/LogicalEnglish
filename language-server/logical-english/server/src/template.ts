@@ -47,9 +47,6 @@ export class Template {
 		const argumentBlockRegex = /((?:\*)an? (?:[\w|\s]+)\*)/g;
 		const elementStrings = templateString.split(argumentBlockRegex);
 
-		// console.log("Element strings:");
-		// console.log(elementStrings);
-
 		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
 		let variableIdx = 0;
 		const elements: TemplateElement[] = elementStrings
@@ -68,11 +65,8 @@ export class Template {
 
 	public static fromLiteral(literal: string, terms: string[]): Template {
 		terms = removeBlanks(terms);		
-		const argumentBlockRegex = RegExp(`(?:(${terms.join('|')}))`, 'g');
+		const argumentBlockRegex = new RegExp(`(?:(${terms.join('|')}))`, 'g');
 		const elementStrings = removeBlanks(literal.split(argumentBlockRegex));
-		
-		// console.log("Element strings:");
-		// console.log(elementStrings);
 
 		let variableIdx = 0;
 		const elements: TemplateElement[] = elementStrings
@@ -86,10 +80,9 @@ export class Template {
 	}
 
 	public static fromLGG(literals: string[]): Template | undefined {
-		// bob spence really likes apples and pears
-		// mary really likes kiwi and pecan tart
 		const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
 		const predicateWords = intersectionOf(wordsFromEachLiteral);
+		
 		// assumes that literals all conform to same template
 		// takes first literal, compares against predicate words to construct a template
 		const terms = Template._extractTermsFromLiteral(literals[0], predicateWords);
@@ -153,6 +146,21 @@ export class Template {
 		.join(' ');
 	}
 
+	public toSnippet(): string {
+		let snippet = '';
+		let placeholderCount = 0;
+		this.elements.forEach(el => {
+			if (el.type === TemplateElementKind.Argument) {
+				placeholderCount++;
+				snippet += '${' + placeholderCount + ':' + el.name + '}';
+			} else 
+				snippet += el.word;
+			
+			snippet += ' ';
+		});
+		return snippet;
+	}
+
 	public extractTermsFromLiteral(literal: string): string[] {
 		const predicateWords = this.elements
 		.filter(el => el.type === TemplateElementKind.Word)
@@ -199,6 +207,10 @@ export class Template {
 		const terms = this.extractTermsFromLiteral(literal);
 		const templateOfLiteral = Template.fromLiteral(literal, terms);
 		return this.hasSameSigniature(templateOfLiteral);
+	}
+
+	public matchesIncompleteLiteral(literal: string): boolean {
+		return true;
 	}
 }
 

@@ -23,13 +23,11 @@ import {
 	CodeAction
 } from 'vscode-languageserver/node';
 
-import {
-	TextDocument
-} from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { quickfixes } from "./quickfixes";
 import { textDocumentDiagnostics } from "./diagnostics";
-import { CodeActionKind, commands } from 'vscode';
+import { provideCompletions } from './completions';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -69,7 +67,7 @@ connection.onInitialize((params: InitializeParams) => {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
-			completionProvider: { resolveProvider: true },
+			completionProvider: { resolveProvider: false },
 			codeActionProvider: true
 		}
 	};
@@ -83,7 +81,7 @@ connection.onInitialize((params: InitializeParams) => {
 
 	if (hasCodeActionLiteralsCapability) {
 		result.capabilities.codeActionProvider = {
-			codeActionKinds: ["quickfix"]
+			codeActionKinds: ['quickfix', 'refactor.extract']
 		};
 	}
 	return result;
@@ -157,9 +155,7 @@ documents.onDidChangeContent(change => {
 	validateTextDocument(change.document);
 });
 
-connection.onCodeAction(provideCodeActions);
-
-async function provideCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
+connection.onCodeAction(params => {
 	if (params.context.diagnostics.length === 0)
 		return [];
 
@@ -168,7 +164,8 @@ async function provideCodeActions(params: CodeActionParams): Promise<CodeAction[
 		return [];
 	
 	return quickfixes(document, params);
-}
+});
+
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
@@ -184,40 +181,30 @@ connection.onDidChangeWatchedFiles(_change => {
 });
 
 // This handler provides the initial list of the completion items.
-connection.onCompletion(
-	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
-		return [
-			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
-				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
-				data: 2
-			}
-		];
-	}
-);
+connection.onCompletion(params => {
+	console.log('server providing completions');
+	const document = documents.get(params.textDocument.uri);
+	if (document === undefined)
+		return [];
+	
+	// can return CompletionList, which enables snippet support!
+	return provideCompletions(document, params);
+});
 
 // This handler resolves additional information for the item selected in
 // the completion list.
-connection.onCompletionResolve(
-	(item: CompletionItem): CompletionItem => {
-		if (item.data === 1) {
-			item.detail = 'TypeScript details';
-			item.documentation = 'TypeScript documentation';
-		} else if (item.data === 2) {
-			item.detail = 'JavaScript details';
-			item.documentation = 'JavaScript documentation';
-		}
-		return item;
-	}
-);
+// connection.onCompletionResolve(
+// 	(item: CompletionItem): CompletionItem => {
+// 		if (item.data === 1) {
+// 			item.detail = 'TypeScript details';
+// 			item.documentation = 'TypeScript documentation';
+// 		} else if (item.data === 2) {
+// 			item.detail = 'JavaScript details';
+// 			item.documentation = 'JavaScript documentation';
+// 		}
+// 		return item;
+// 	}
+// );
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
