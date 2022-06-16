@@ -9,6 +9,7 @@ import * as path from 'path';
 import { workspace, ExtensionContext, commands, window, TextEditor, TextEditorEdit } from 'vscode';
 
 import {
+	Executable,
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
@@ -22,6 +23,11 @@ export function activate(context: ExtensionContext) {
 	const serverModule = context.asAbsolutePath(
 		path.join('server', 'out', 'server.js')
 	);
+
+	// const executeLinkedServer: Executable = {
+	// 	command: 'lsp-sample-server',
+	// 	args: ['--stdio'],
+	// };
 	// The debug options for the server
 	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
@@ -33,11 +39,13 @@ export function activate(context: ExtensionContext) {
 			module: serverModule, 
 			transport: TransportKind.ipc
 		},
+		// run: executeLinkedServer,
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
 			options: debugOptions
 		}
+		// debug: executeLinkedServer
 	};
 
 	// Options to control the language client

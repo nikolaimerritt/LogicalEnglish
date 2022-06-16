@@ -1,6 +1,10 @@
 {
 	"name": "lsp-sample-server",
 	"description": "Example implementation of a language server in node.",
+	"main": "./index.js",
+	"bin": {
+		"lsp-sample-server": "./index.js"
+	},
 	"version": "1.0.0",
 	"author": "Microsoft Corporation",
 	"license": "MIT",
@@ -13,6 +17,7 @@
 	},
 	"dependencies": {
 		"@types/vscode": "^1.67.0",
+		"ts-node": "^10.8.1",
 		"vscode-languageserver": "^7.0.0",
 		"vscode-languageserver-textdocument": "^1.0.4"
 	},
