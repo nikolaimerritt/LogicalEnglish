@@ -42,24 +42,44 @@ export function templatesInDocument(document: TextDocument): Template[] {
 	return templates;
 }
 
-export function literalsInDocument(document: TextDocument): string[] {
-	const ruleRange = sectionRange('knowledge base', document);
-	if (ruleRange === undefined)
+export type TextRange = {
+	text: string,
+	range: Range
+}
+
+export function literalsInDocument(document: TextDocument): TextRange[] {
+	const knowledgeBase = sectionRange('knowledge base', document);
+	if (knowledgeBase === undefined)
 		return [];
 
-	const lines = document.getText()
-	.split('\n')
-	.slice(ruleRange.start.line, ruleRange.end.line)
-	.map(clause => clause.trim())
-	.filter(clause => clause.length > 0);
-	
-	const connectives = /\b(?:if|and|it is the case that|it is not the case that)\b/g;
-	const literals = lines
-	.flatMap(rule => rule.split(connectives))
-	.map(rule => rule.trim().replace('.', ''))
-	.filter(rule => rule.length > 0);
+	const connectives = /\b(?:if|and|or|it is the case that|it is not the case that)\b/g;
+	const lines = document.getText().split('\n');
 
-	return literals;
+	const literalsWithRanges: TextRange[] = [];
+	for (let l = knowledgeBase.start.line; l <= Math.min(knowledgeBase.end.line, lines.length - 1); l++) {
+		const literalsInLine = lines[l].split(connectives)
+		.map(lit => lit.trim())
+		.filter(lit => lit.length > 0);
+
+		literalsInLine.forEach(lit => {
+			const range: Range = {
+				start: {
+					line: l,
+					character: lines[l].indexOf(lit)
+				},
+				end: {
+					line: l,
+					character: lines[l].indexOf(lit) + lit.length
+				}
+			};
+			literalsWithRanges.push({
+				text: lit,
+				range
+			});
+		});
+	}
+
+	return literalsWithRanges;
 }
 
 export function intersectionOf<T>(lists: T[][]): T[] {

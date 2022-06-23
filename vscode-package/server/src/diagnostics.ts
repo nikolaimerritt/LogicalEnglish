@@ -105,21 +105,13 @@ function literalHasNoTemplateDiagnostics(document: TextDocument): Diagnostic[] {
 	const literals = literalsInDocument(document);
 
 	const diagnostics: Diagnostic[] = [];
-	literals.forEach(literal => {
-		if (!templates.some(template => template.matchesLiteral(literal))) {
-			const literalPos = document.getText().match(literal)?.index;
-			if (literalPos !== undefined) {
-				diagnostics.push({
-					severity: DiagnosticSeverity.Warning,
-					range: {
-						start: document.positionAt(literalPos),
-						end: document.positionAt(literalPos + literal.length)
-					},
-					message: literalHasNoTemplateMessage
-				});
-			}
-		}
-	});
+	for (const { text: literal, range } of literalsInDocument(document))
+		if (!templates.some(template => template.matchesLiteral(literal)))
+			diagnostics.push({
+				severity: DiagnosticSeverity.Warning,
+				range,
+				message: literalHasNoTemplateMessage
+			});
 
 	return diagnostics;
 }

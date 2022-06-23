@@ -53,6 +53,7 @@ function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionPa
 	const actions: CodeAction[] = [];
 	const templates = templatesInDocument(document);
 	const literalsWithNoTemplate = literalsInDocument(document)
+	.map(textRange => textRange.text)
 	.filter(literal => !templates.some(template => template.matchesLiteral(literal)));
 
 	if (literalsWithNoTemplate.length === 0)
