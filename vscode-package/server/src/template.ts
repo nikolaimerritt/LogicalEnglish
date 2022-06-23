@@ -1,3 +1,4 @@
+import { workerData } from 'worker_threads';
 import { intersectionOf, removeBlanks } from './utils';
 
 export enum TemplateElementKind {
@@ -85,7 +86,7 @@ export class Template {
 		
 		// assumes that literals all conform to same template
 		// takes first literal, compares against predicate words to construct a template
-		const terms = Template._extractTermsFromLiteral(literals[0], predicateWords);
+		const terms = Template.termsFromLiteral(literals[0], predicateWords);
 		const template = Template.fromLiteral(
 			literals[0],
 			terms
@@ -161,27 +162,27 @@ export class Template {
 		return snippet;
 	}
 
-	public extractTermsFromLiteral(literal: string): string[] {
+	public termsFromLiteral(literal: string): string[] {
 		const predicateWords = this.elements
 		.filter(el => el.type === TemplateElementKind.Word)
 		.map(w => (w as PredicateWord).word)
 		.flatMap(word => word.split(' '));
 
-		return Template._extractTermsFromLiteral(literal, predicateWords);
+		return Template.termsFromLiteral(literal, predicateWords);
 	}
 		
-	private static _extractTermsFromLiteral(literal: string, predicateWords: string[]) {
+	private static termsFromLiteral(literal: string, predicateWords: string[]): string[] {
 		const literalWords = literal.split(/\s+/g);
 		const terms: string[] = [];
 		let currentTerm = '';
 
 		literalWords.forEach(word => {
-			if (word === predicateWords[0]) {
+			if (predicateWords.length > 0 && word === predicateWords[0]) {
 				if (currentTerm.length !== 0) {
 					terms.push(currentTerm);
 					currentTerm = '';
 				}
-				predicateWords.splice(0, 1); // pop first word
+				predicateWords.shift(); // pop first word
 			}
 			else {
 				if (currentTerm.length !== 0)
@@ -196,6 +197,36 @@ export class Template {
 		return terms;
 	}
 
+	private termsFromIncompleteLiteral(literal: string): string[] {
+		const literalWords = literal.split(/\s+/g);
+		const predicateWords = this.predicateWords()
+		.flatMap(w => w.word.split(/\s+/g));
+		const terms: string[] = [];
+		let currentTerm = '';
+
+
+		for (let i = 0; i < literalWords.length; i++) {
+			if (predicateWords.length > 0 && 
+					(literalWords[i] === predicateWords[0] 
+						|| i === literalWords.length - 1 && predicateWords[0].startsWith(literalWords[i]))) {
+				if (currentTerm.length > 0) {
+					terms.push(currentTerm);
+					currentTerm = '';  
+				}
+				predicateWords.shift(); // pop first word
+			} else {
+				if (currentTerm.length > 0) 
+					currentTerm += ' ';
+				currentTerm += literalWords[i];
+			}
+		}
+
+		if (currentTerm.length > 0)
+			terms.push(currentTerm);
+
+		return terms;
+	}
+
 
 	public matchesLiteral(literal: string): boolean {
 		// given literal L, template T
@@ -204,7 +235,7 @@ export class Template {
 		// check if T' has same signiature as T
 		
 		literal = literal.replace(/\./g, '');
-		const terms = this.extractTermsFromLiteral(literal);
+		const terms = this.termsFromLiteral(literal);
 		const templateOfLiteral = Template.fromLiteral(literal, terms);
 		return this.hasSameSigniature(templateOfLiteral);
 	}
@@ -226,12 +257,33 @@ export class Template {
 					score += 0.5;
 				
 				break;
+			} else {
+				score++;
+				literal = literal.slice(wordIdx + 1, );
 			}
-			
-			score++;
-			literal = literal.slice(wordIdx + 1, undefined);
 		}
 		return score / this.predicateWords().length;
+	}
+
+	// *an A* 		really likes 	*a B* 	with value 	*a C*
+	// fred bloggs	really likes 	apples	with val
+	// output = fred bloggs really likes apples with value *a C*
+	public templateWithMissingTerms(literal: string): Template {
+		const terms = this.termsFromIncompleteLiteral(literal);
+		const templateElements: TemplateElement[] = [];
+		this.elements.forEach(element => {
+			if (element.type === TemplateElementKind.Word) 
+				templateElements.push(element);
+			else if (element.type === TemplateElementKind.Argument) {
+				if (terms.length > 0) {
+					templateElements.push(new PredicateWord(terms[0]));
+					terms.shift(); // remove first term
+				} else 
+					templateElements.push(element);
+			}
+		});
+
+		return new Template(templateElements);
 	}
 
 

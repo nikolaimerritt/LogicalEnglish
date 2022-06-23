@@ -40,18 +40,18 @@ export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapabilit
 }
 
 function debugOnStart() {
-	const template = Template.fromString('*a person* really likes *an object* with value *a value*');
+	const template = Template.fromString('*a Person* really likes *an Object* with value *a Value*');
 	const incompleteLiterals = [
-		'bob spence really likes plates with value 5',
-		'bob spence really likes plates wit',
-		'bob spence really likes',
-		'bob spence reall',
-		'bob spence',
-		'roses are red violets are blue'
+		'fred bloggs r',
+		'fred bloggs re',
+		'fred bloggs really likes ',
+		'fred bloggs really likes apple',
+		'fred bloggs really likes apples wi',
+		'fred bloggs really likes applies with value 7'
 	];
 
 	incompleteLiterals.forEach(literal => {
-		console.log(`"${literal}" \t has score = ${template.matchScore(literal)}`);
+		console.log(`'${literal}' \t has terms = '${template.templateWithMissingTerms(literal).toString()}'`);
 	});
 }
 

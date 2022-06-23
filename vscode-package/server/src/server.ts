@@ -49,8 +49,10 @@ connection.onInitialize((params: InitializeParams) => {
 	hasConfigurationCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.configuration
 	);
-	console.log('Completion capabilities:');
-	console.log(capabilities.textDocument?.completion);
+
+	console.log("insert replace support:");
+	console.log(capabilities.textDocument?.completion?.completionItem?.insertReplaceSupport);
+
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
 	);
@@ -184,7 +186,6 @@ connection.onDidChangeWatchedFiles(_change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(params => {
-	console.log('server providing completions');
 	const document = documents.get(params.textDocument.uri);
 	if (document === undefined)
 		return [];
