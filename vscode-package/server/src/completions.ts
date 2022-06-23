@@ -42,26 +42,20 @@ function literalCompletion(document: TextDocument, params: TextDocumentPositionP
 
 	const completions: CompletionItem[] = [];
 	templates.forEach(template => {
-		// if (template.matchScore(literal) > 0) {
-			// console.log(`Found match for '${literal}': ${template.toString()}`);
-
-			const textEdit = TextEdit.insert(params.position, 'hello autocomplete');
+		if (template.matchScore(literal) > 0) {
+			const templateWithMissingTerms = template.templateWithMissingTerms(literal);
+			const textEdit = TextEdit.replace(literalToEndOfLine, templateWithMissingTerms.toSnippet());
 			console.log(`Suggesting textEdit to text ${literal}`);
 			console.log(textEdit);
 
-			// bug: completion only suggested if literal matches (shares common bits of text with) label
-			// fix: apply the half-written literal to the template, i.e.
-			// literal: fred bloggs; template: *an A* really likes *a B* --> new label: fred bloggs really likes *a B*
 			completions.push({
-				label: 'label goes here',
+				label: templateWithMissingTerms.toString(),
 				kind: CompletionItemKind.Class,
 				insertTextFormat: InsertTextFormat.Snippet,
 				textEdit,
 				sortText: template.matchScore(literal).toString(),
-				detail: 'detail goes here',
-				documentation: 'documentation goes here'
 			});
-		// }
+		}
 
 
 			

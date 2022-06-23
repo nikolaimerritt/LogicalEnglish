@@ -30,7 +30,7 @@ export const globalSettings: ExampleSettings = {
 export const literalHasNoTemplateMessage = "Literal has no template.";
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
-	debugOnStart();
+	// debugOnStart();
 
 	return [
 		...bannedWordDiagnostics(document),
