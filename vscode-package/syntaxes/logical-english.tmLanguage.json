@@ -38,7 +38,7 @@
       "patterns": [
         {
           "name": "keyword.control.logical-english",
-          "match": "\\b(if|then|and|or|it is the case that|it is not the case that)\\b"
+          "match": "\\b(if|then|and|or|it is the case that|it is not the case that|that)\\b"
         }
       ]
     },

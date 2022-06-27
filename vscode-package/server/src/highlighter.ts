@@ -10,7 +10,7 @@ import {
 } from "vscode-languageserver";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { literalsInDocument, templatesInDocument } from './utils';
+import { ignoreComments, literalsInDocument, templatesInDocument } from './utils';
 
 
 export const tokenTypes = ['variable', 'class', 'interface'];
@@ -25,17 +25,17 @@ interface TokenDetails {
 }
 
 export function semanticTokens(document: TextDocument): SemanticTokens {
-    const text = document.getText();
+    const text = ignoreComments(document.getText());
     const builder = new SemanticTokensBuilder();
 
-    const tokenDetails = {
-        line: 1,
-        char: 1, 
-        length: 10,
-        tokenType: encodeTokenType('class'),
-        tokenModifiers: encodeTokenModifier('declaration')
-    };
-    builder.push(tokenDetails.line, tokenDetails.char, tokenDetails.length, tokenDetails.tokenType, tokenDetails.tokenModifiers);
+    // const tokenDetails = {
+    //     line: 1,
+    //     char: 1, 
+    //     length: 10,
+    //     tokenType: encodeTokenType('class'),
+    //     tokenModifiers: encodeTokenModifier('declaration')
+    // };
+    // builder.push(tokenDetails.line, tokenDetails.char, tokenDetails.length, tokenDetails.tokenType, tokenDetails.tokenModifiers);
 
     terminLiteralTokens(text).forEach(token => {
         const { line, char, length, tokenTypeName, tokenModifierName } = token;

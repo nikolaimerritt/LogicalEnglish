@@ -2,7 +2,7 @@ import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Posit
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
 import { literalHasNoTemplateMessage } from './diagnostics';
-import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument } from './utils';
+import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments } from './utils';
 
 import { debugOnStart } from './diagnostics';
 
@@ -11,23 +11,22 @@ import { debugOnStart } from './diagnostics';
 export function quickfixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
 	// debugOnStart();
 	
+	const text = ignoreComments(document.getText());
 	return [
-		...literalWithNoTemplateFixes(document, params)
+		...literalWithNoTemplateFixes(text, params)
 	];
 }
 
 
 
 
-function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
-	const actions: CodeAction[] = [];
-	const text = document.getText();
+function literalWithNoTemplateFixes(text: string, params: CodeActionParams): CodeAction[] {
 	const templates = templatesInDocument(text);
 	const literalsWithNoTemplate = literalsInDocument(text)
 	.map(textRange => textRange.content)
 	.filter(literal => !templates.some(template => template.matchesLiteral(literal)));
 
-	if (literalsWithNoTemplate.length === 0)
+	if (literalsWithNoTemplate.length < 2)
 		return [];
 	
 	const lggTemplate = Template.fromLGG(literalsWithNoTemplate);
@@ -43,7 +42,7 @@ function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionPa
 		end: templatesRange.end
 	};
 	
-	
+	const actions: CodeAction[] = [];
 	params.context.diagnostics.forEach(diag => {
 		if (diag.severity === DiagnosticSeverity.Warning && diag.message.includes(literalHasNoTemplateMessage)) {
 			actions.push({

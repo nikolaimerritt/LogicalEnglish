@@ -16,7 +16,7 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { templatesInDocument, literalsInDocument, clausesInDocument } from './utils';
+import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments } from './utils';
 import { Template } from './template';
 import exp = require('constants');
 
@@ -33,10 +33,11 @@ export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned conn
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
 	// debugOnStart();
+	const text = ignoreComments(document.getText());
 
 	return [
-		... literalHasNoTemplateDiags(document),
-		...misalignedConnectivesDiags(document)
+		... literalHasNoTemplateDiags(text),
+		...misalignedConnectivesDiags(text)
 	]
 	.slice(0, maxNumberOfProblems);
 }
@@ -66,8 +67,7 @@ hi if blib
 }
 
 
-function literalHasNoTemplateDiags(document: TextDocument): Diagnostic[] {
-	const text = document.getText();
+function literalHasNoTemplateDiags(text: string): Diagnostic[] {
 	const templates = templatesInDocument(text);
 
 	const diagnostics: Diagnostic[] = [];
@@ -83,8 +83,7 @@ function literalHasNoTemplateDiags(document: TextDocument): Diagnostic[] {
 }
 
 
-function misalignedConnectivesDiags(document: TextDocument): Diagnostic[] {
-	const text = document.getText();
+function misalignedConnectivesDiags(text: string): Diagnostic[] {
 	const diagnostics: Diagnostic[] = [];
 
 	for (const { content: clause, range } of clausesInDocument(text)) {

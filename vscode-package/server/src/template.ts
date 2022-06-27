@@ -1,4 +1,3 @@
-import { workerData } from 'worker_threads';
 import { intersectionOf, removeBlanks } from './utils';
 
 export enum TemplateElementKind {

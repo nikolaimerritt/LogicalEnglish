@@ -150,7 +150,7 @@ export function removeBlanks(words: string[]): string[] {
 
 
 export function literalAtPosition(line: string, characterOffset: number): string | undefined {
-	const connectives = /\b(?:if|and|it is the case that|it is not the case that)\b/g;
+	const connectives = /\b(?:if|and|or|that|it is the case that|it is not the case that)\b/g;
 	const literals = line
 	.split(connectives)
 	.map(literal => literal.trim().replace('.', ''))
@@ -165,4 +165,9 @@ export function literalAtPosition(line: string, characterOffset: number): string
 	}
 
 	return undefined;
+}
+
+export function ignoreComments(text: string): string {
+	const singleLineComment = /%.*/g;
+	return text.replace(singleLineComment, '');
 }
