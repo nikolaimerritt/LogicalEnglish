@@ -5,6 +5,7 @@
 
 // Initial version taken from https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
 // Sending code actions based on code at https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/server.ts
+// Configuring semantic token providers based on https://github.com/ansible/ansible-language-server/blob/592c59784dedeabf10c75a62637ce9e11f12bdfd/src/ansibleLanguageService.ts
 
 import {
 	createConnection,

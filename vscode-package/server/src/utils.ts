@@ -166,11 +166,3 @@ export function literalAtPosition(line: string, characterOffset: number): string
 
 	return undefined;
 }
-
-function occurances(text: string, substring: string): number {
-	const matches = text.match(new RegExp(`/${substring}/`, 'g'));
-	if (matches === null)
-		return 0;
-	
-	return matches.length;
-}
