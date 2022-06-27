@@ -139,16 +139,16 @@
       ]
     },
     "template-types": {
-      "match": "(\\*)((a|an) )?(\\w[\\w|\\s]*)(\\*)",
+      "match": "(\\*)(an? \\w[\\s\\w]*\\w)(\\*)",
       "name": "entity.type.template.logical-english",
       "captures": {
         "1": {
           "name": "punctuation.definition.type.begin.logical-english"
         },
-        "4": {
+        "2": {
           "name": "entity.name.type.template-type.logical-english"
         },
-        "5": {
+        "3": {
           "name": "punctuation.definition.type.end.logical-english"
         }
       }
