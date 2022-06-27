@@ -16,8 +16,9 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { templatesInDocument, literalsInDocument, literalAtPosition } from './utils';
+import { templatesInDocument, literalsInDocument, clausesInDocument } from './utils';
 import { Template } from './template';
+import exp = require('constants');
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -28,84 +29,49 @@ export const globalSettings: ExampleSettings = {
 };
 
 export const literalHasNoTemplateMessage = "Literal has no template.";
+export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned connectives.';
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
 	// debugOnStart();
 
 	return [
-		...bannedWordDiagnostics(document),
-		... literalHasNoTemplateDiagnostics(document)
+		... literalHasNoTemplateDiags(document),
+		...misalignedConnectivesDiags(document)
 	]
 	.slice(0, maxNumberOfProblems);
 }
 
-function debugOnStart() {
-	const template = Template.fromString('*a Person* really likes *an Object* with value *a Value*');
-	const incompleteLiterals = [
-		'fred bloggs r',
-		'fred bloggs re',
-		'fred bloggs really likes ',
-		'fred bloggs really likes apple',
-		'fred bloggs really likes apples wi',
-		'fred bloggs really likes applies with value 7'
+
+export function debugOnStart() {
+	const texts = [
+`
+hello if blob
+	and alpha
+	and beta
+		or gamma
+	and delta	
+`,
+`
+hi if blib
+		and espilon
+		or zeta
+		and eta
+			or theta
+`
 	];
 
-	incompleteLiterals.forEach(literal => {
-		console.log(`'${literal}' \t has terms = '${template.templateWithMissingTerms(literal).toString()}'`);
+	texts.forEach(text => {
+		console.log(`text = ${text} has misaligned connectives? ${clauseHasMisalignedConnectives(text)}`);
 	});
 }
 
 
-function bannedWordDiagnostics(document: TextDocument): Diagnostic[] {
+function literalHasNoTemplateDiags(document: TextDocument): Diagnostic[] {
 	const text = document.getText();
-	const pattern = /\b(foo|bar)\b/g;
-	let m: RegExpExecArray | null;
-
-	let problems = 0;
-	const diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text))) {
-		problems++;
-		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Error,
-			range: {
-				start: document.positionAt(m.index),
-				end: document.positionAt(m.index + m[0].length)
-			},
-			message: `${m[0]} is a banned word.`,
-			source: 'ex'
-		};
-		
-		// if (hasDiagnosticRelatedInformationCapability) {
-		// 	diagnostic.relatedInformation = [
-		// 		{
-		// 			location: {
-		// 				uri: document.uri,
-		// 				range: Object.assign({}, diagnostic.range)
-		// 			},
-		// 			message: 'Here is where I would put some extra info...'
-		// 		},
-		// 		{
-		// 			location: {
-		// 				uri: document.uri,
-		// 				range: Object.assign({}, diagnostic.range)
-		// 			},
-		// 			message: '...that is asynchronously loaded in after an error has been detected.'
-		// 		}
-		// 	];
-		// }
-		diagnostics.push(diagnostic);
-	}
-
-	return diagnostics;
-}
-
-
-function literalHasNoTemplateDiagnostics(document: TextDocument): Diagnostic[] {
-	const templates = templatesInDocument(document);
-	const literals = literalsInDocument(document);
+	const templates = templatesInDocument(text);
 
 	const diagnostics: Diagnostic[] = [];
-	for (const { text: literal, range } of literalsInDocument(document))
+	for (const { content: literal, range } of literalsInDocument(text))
 		if (!templates.some(template => template.matchesLiteral(literal)))
 			diagnostics.push({
 				severity: DiagnosticSeverity.Warning,
@@ -114,4 +80,50 @@ function literalHasNoTemplateDiagnostics(document: TextDocument): Diagnostic[] {
 			});
 
 	return diagnostics;
+}
+
+
+function misalignedConnectivesDiags(document: TextDocument): Diagnostic[] {
+	const text = document.getText();
+	const diagnostics: Diagnostic[] = [];
+
+	for (const { content: clause, range } of clausesInDocument(text)) {
+		if (clauseHasMisalignedConnectives(clause)) {
+			diagnostics.push({
+				severity: DiagnosticSeverity.Warning,
+				range,
+				message: clauseHasMisalignedConnectivesMessage
+			});
+		}
+	}
+	return diagnostics;
+}
+
+
+function clauseHasMisalignedConnectives(clause: string): boolean {
+	const connectives = [
+		'and',
+		'or'
+	];
+
+	const lines = clause.split(/\n+/g);
+	const startsWith = (idx: number, conn: string) => 
+		lines[idx].trimStart().startsWith(conn);
+
+	for (let i = 0; i < lines.length; i++) {
+		const connective = connectives.find(conn => startsWith(i, conn));
+		if (connective !== undefined) {
+			const indentation = lines[i].split(connective)[0];
+			for (let j = i + 1; j < lines.length; j++) {
+				const otherConnective = connectives.find(conn => conn !== connective && startsWith(j, conn));
+				if (otherConnective !== undefined) {
+					const otherIndentation = lines[j].split(otherConnective)[0];
+					if (indentation === otherIndentation)
+						return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }

@@ -76,7 +76,6 @@ export function activate(context: ExtensionContext) {
 	// 		console.log(textEditor.selection);
 	// });
 
-	console.log("Client is starting language server.");
 	// client.onReady().then(() => {
 	// 	client.onNotification("custom/loadFiles", (files: Array<string>) => {
 	// 		console.log(`Received custom/loadFiles message with files = ${files}`);

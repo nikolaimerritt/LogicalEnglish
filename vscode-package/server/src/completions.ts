@@ -12,13 +12,14 @@ export function provideCompletions(document: TextDocument, params: TextDocumentP
 
 
 function literalCompletion(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {
-	const knowledgeBaseRange = sectionRange('knowledge base', document);
+	const text = document.getText();
+	const knowledgeBaseRange = sectionRange('knowledge base', text);
 	if (knowledgeBaseRange === undefined 
 			|| params.position.line < knowledgeBaseRange.start.line 
 			|| params.position.line > knowledgeBaseRange.end.line) 
 		return [];
 	
-	const templates = templatesInDocument(document);
+	const templates = templatesInDocument(text);
 
 	const line = document.getText().split('\n')[params.position.line];
 	const literal = literalAtPosition(line, params.position.character);
@@ -45,8 +46,6 @@ function literalCompletion(document: TextDocument, params: TextDocumentPositionP
 		if (template.matchScore(literal) > 0) {
 			const templateWithMissingTerms = template.templateWithMissingTerms(literal);
 			const textEdit = TextEdit.replace(literalToEndOfLine, templateWithMissingTerms.toSnippet());
-			console.log(`Suggesting textEdit to text ${literal}`);
-			console.log(textEdit);
 
 			completions.push({
 				label: templateWithMissingTerms.toString(),
@@ -55,10 +54,7 @@ function literalCompletion(document: TextDocument, params: TextDocumentPositionP
 				textEdit,
 				sortText: template.matchScore(literal).toString(),
 			});
-		}
-
-
-			
+		}			
 	});
 
 	return completions;

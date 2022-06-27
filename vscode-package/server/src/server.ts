@@ -9,18 +9,11 @@
 import {
 	createConnection,
 	TextDocuments,
-	Diagnostic,
-	DiagnosticSeverity,
 	ProposedFeatures,
 	InitializeParams,
 	DidChangeConfigurationNotification,
-	CompletionItem,
-	CompletionItemKind,
-	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-	CodeActionParams,
-	CodeAction
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -28,6 +21,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { quickfixes } from "./quickfixes";
 import { textDocumentDiagnostics } from "./diagnostics";
 import { provideCompletions } from './completions';
+import { tokenTypes, tokenModifiers, semanticTokens } from './highlighter';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -50,8 +44,6 @@ connection.onInitialize((params: InitializeParams) => {
 		capabilities.workspace && !!capabilities.workspace.configuration
 	);
 
-	console.log("insert replace support:");
-	console.log(capabilities.textDocument?.completion?.completionItem?.insertReplaceSupport);
 
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
@@ -72,7 +64,12 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: { resolveProvider: false },
-			codeActionProvider: true
+			codeActionProvider: true,
+			semanticTokensProvider: {
+				documentSelector: [ { language: 'logical-english' } ],
+				full: true,
+				legend: { tokenTypes, tokenModifiers }
+			}
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -192,6 +189,16 @@ connection.onCompletion(params => {
 	
 	// can return CompletionList, which enables snippet support!
 	return provideCompletions(document, params);
+});
+
+connection.languages.semanticTokens.on(params => {
+	console.log('Server generating semantic tokens');
+
+	const document = documents.get(params.textDocument.uri);
+	if (document === undefined)
+		return { data: [] };
+	
+	return semanticTokens(document);
 });
 
 // This handler resolves additional information for the item selected in

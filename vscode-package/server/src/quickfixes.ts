@@ -2,7 +2,9 @@ import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Posit
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
 import { literalHasNoTemplateMessage } from './diagnostics';
-import { literalsInDocument, sectionRange, templatesInDocument, literalAtPosition } from './utils';
+import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument } from './utils';
+
+import { debugOnStart } from './diagnostics';
 
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
@@ -10,50 +12,19 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 	// debugOnStart();
 	
 	return [
-		//...bannedWordFixes(document, params),
 		...literalWithNoTemplateFixes(document, params)
 	];
 }
 
-function debugOnStart() {
-	const line = 'rudolph is quite happy if rudolph is a man and rudolph has a friend';
-	const character = 29;
-	const literal = literalAtPosition(line, character);
-	console.log(`literal at char ${character} = ${literal}`);
-}
 
-
-
-function bannedWordFixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
-	const actions: CodeAction[] = [];
-	
-	params.context.diagnostics.forEach(diag => {
-		if (diag.severity === DiagnosticSeverity.Error && diag.message.includes('is a banned word')) {
-			actions.push({
-				title: "Add an underscore at the start.",
-				kind: CodeActionKind.QuickFix,
-				diagnostics: [diag],
-				edit: {
-					changes: {
-						[params.textDocument.uri]: [{
-							range: diag.range, 
-							newText: '# hello #'
-						}]
-					}
-				}
-			});
-		}
-	});
-
-	return actions;
-}
 
 
 function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
 	const actions: CodeAction[] = [];
-	const templates = templatesInDocument(document);
-	const literalsWithNoTemplate = literalsInDocument(document)
-	.map(textRange => textRange.text)
+	const text = document.getText();
+	const templates = templatesInDocument(text);
+	const literalsWithNoTemplate = literalsInDocument(text)
+	.map(textRange => textRange.content)
 	.filter(literal => !templates.some(template => template.matchesLiteral(literal)));
 
 	if (literalsWithNoTemplate.length === 0)
@@ -63,7 +34,7 @@ function literalWithNoTemplateFixes(document: TextDocument, params: CodeActionPa
 	if (lggTemplate === undefined)
 		return [];
 	
-	const templatesRange = sectionRange('templates', document);
+	const templatesRange = sectionRange('templates', text);
 	if (templatesRange === undefined)
 		return [];
 	

@@ -9,7 +9,7 @@ From any folder, run `lsp-ws-proxy --listen 8888 -- lsp-sample-server --stdio`
 This makes lsp-ws-proxy listen on port `ws://0.0.0.0:8888`, passing communication to `lsp-sample-server` via standard I/O
 
 ## Run the Code Mirror front-end
-Navigate to `codemirror-client/frontend`. In `server.ts`, make sure that the `ILspOptions` object 
+Navigate to `codemirror-client/frontend`. In `index.ts`, make sure that the `ILspOptions` object 
 ```
 {
     serverUri: 'ws://0.0.0.0:8888/',

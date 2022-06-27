@@ -3,12 +3,17 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position, Range } from 'vscode-languageserver';
 import { Template } from './template';
 
+export type ContentRange<T> = {
+	content: T,
+	range: Range
+}
 
-export function sectionRange(headerText: string, document: TextDocument): Range | undefined {
-	const lines = document.getText().split('\n');
+export function sectionRange(headerText: string, text: string): Range | undefined {
+	const lines = text.split('\n');
 	
 	let start: Position | undefined = undefined;
 	let end: Position | undefined = undefined;
+
 	for (let i = 0; i < lines.length; i++) {
 		if (lines[i].includes(':')) {
 			if (start !== undefined) {
@@ -29,12 +34,13 @@ export function sectionRange(headerText: string, document: TextDocument): Range 
 	return { start, end };
 }
 
-export function templatesInDocument(document: TextDocument): Template[] {
-	const templateRange = sectionRange('templates', document);
+// TODO: make this return TextRange
+export function templatesInDocument(text: string): Template[] {
+	const templateRange = sectionRange('templates', text);
 	if (templateRange === undefined)
 		return [];
 	
-	const templates = document.getText()
+	const templates = text
 	.split('\n')
 	.slice(templateRange.start.line, templateRange.end.line)
 	.map(Template.fromString);
@@ -42,20 +48,55 @@ export function templatesInDocument(document: TextDocument): Template[] {
 	return templates;
 }
 
-export type TextRange = {
-	text: string,
-	range: Range
+export function clausesInDocument(text: string): ContentRange<string>[] {
+	const clauseRange = sectionRange('knowledge base', text);
+
+	if (clauseRange === undefined)
+		return [];
+	
+	const lines = text.split('\n');
+	const clauses: ContentRange<string>[] = [];
+	const startOfClause = /^[^\s].*$/;
+	const endOfClause = /^.*\.$/;
+
+	let clauseStartLine = undefined;
+	let clauseEndLine = undefined;
+
+	for (let l = clauseRange.start.line; l <= clauseRange.end.line && l < lines.length; l++) {
+		if (startOfClause.test(lines[l]))
+			clauseStartLine = l;
+			
+		if (clauseStartLine !== undefined && endOfClause.test(lines[l])) {
+			clauseEndLine = l;
+			clauses.push({
+				content: lines.slice(clauseStartLine, clauseEndLine + 1).join('\n'),
+				range: {
+					start: {
+						line: clauseStartLine,
+						character: 0
+					},
+					end: {
+						line: clauseEndLine,
+						character: lines[clauseEndLine].length
+					}
+				} 
+			});
+		}
+	}
+
+	return clauses;
 }
 
-export function literalsInDocument(document: TextDocument): TextRange[] {
-	const knowledgeBase = sectionRange('knowledge base', document);
+
+export function literalsInDocument(text: string): ContentRange<string>[] {
+	const knowledgeBase = sectionRange('knowledge base', text);
 	if (knowledgeBase === undefined)
 		return [];
 
 	const connectives = /\b(?:if|and|or|it is the case that|it is not the case that)\b/g;
-	const lines = document.getText().split('\n');
+	const lines = text.split('\n');
 
-	const literalsWithRanges: TextRange[] = [];
+	const literalsWithRanges: ContentRange<string>[] = [];
 	for (let l = knowledgeBase.start.line; l <= Math.min(knowledgeBase.end.line, lines.length - 1); l++) {
 		const literalsInLine = lines[l].split(connectives)
 		.map(lit => lit.trim())
@@ -73,7 +114,7 @@ export function literalsInDocument(document: TextDocument): TextRange[] {
 				}
 			};
 			literalsWithRanges.push({
-				text: lit,
+				content: lit,
 				range
 			});
 		});
@@ -124,4 +165,12 @@ export function literalAtPosition(line: string, characterOffset: number): string
 	}
 
 	return undefined;
+}
+
+function occurances(text: string, substring: string): number {
+	const matches = text.match(new RegExp(`/${substring}/`, 'g'));
+	if (matches === null)
+		return 0;
+	
+	return matches.length;
 }

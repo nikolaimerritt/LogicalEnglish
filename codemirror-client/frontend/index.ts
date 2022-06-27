@@ -1,4 +1,4 @@
-import * as CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/css/css';
@@ -8,10 +8,13 @@ import 'codemirror/theme/idea.css';
 // installed by the app that uses the LSP connection
 import 'codemirror/addon/hint/show-hint.css';
 import 'codemirror/addon/hint/show-hint';
-
 import '../src/codemirror-lsp.css';
-
 import { LspWsConnection, CodeMirrorAdapter } from '../lib/index';
+
+import { loadWASM } from 'onigasm';
+import { addGrammar, activateLanguage } from 'codemirror-textmate';
+import logicalEnglishHighlighting from './logical-english.tmLanguage.json';
+import { IRawGrammar } from 'monaco-textmate';
 
 let sampleJs = `
 let values = [15, 2, 7, 9, 17, 99, 50, 3];
@@ -114,3 +117,53 @@ let jsConnection = new LspWsConnection(js).connect(new WebSocket(js.serverUri));
 let jsAdapter = new CodeMirrorAdapter(jsConnection, {
   quickSuggestionsDelay: 50,
 }, jsEditor);
+
+
+(async () => {
+    // await loadWASM(
+    //     // webpack has been configured to resolve `.wasm` files to actual 'paths" as opposed to using the built-in wasm-loader
+    //     // oniguruma is a low-level library and stock wasm-loader isn't equipped with advanced low-level API's to interact with libonig
+    //     require('onigasm/lib/onigasm.wasm'))
+
+    const grammar = {
+        /**
+         * This the most resource efficient way to load grammars as of yet
+         */
+        loader: () => import('./logical-english.tmLanguage.json'),
+        /**
+         * Language ID is only necessary for languages you want to use as CodeMirror mode (eg: cm.setOption('mode', 'javascript'))
+         * To do that, we use `activatelanguage`, which will link one scope name to a language ID (also known as "mode")
+         * 
+         * Grammar dependencies don't need to be "activated", just "adding/registering" them is enough (using `addGrammar`)
+         */
+        language: 'logical-english',
+
+        /**
+         * Third parameter accepted by `activateLanguage` to specify language loading priority
+         * Loading priority can be 'now' | 'asap' | 'defer' (default)
+         * 
+         *  - [HIGH] 'now' will cause the language (and it's grammars) to load/compile right away (most likely in the next event loop)
+         *  - [MED]  'asap' is like 'now' but will use `requestIdleCallback` if available (fallbacks to `setTimeout`, 10 seconds).
+         *  - [LOW]  'defer' will only do registeration and loading/compiling is deferred until needed (⚠ WILL CAUSE FOUC IN CODEMIRROR) (DEFAULT)
+         */
+        priority: 'now',
+        scopeName: 'source.logical-english'
+    }
+
+    // To avoid FOUC, await for high priority languages to get ready (loading/compiling takes time, and it's an async process for which CM won't wait)
+    const { loader, language, priority, scopeName } = grammar;
+
+    addGrammar('source.logical-english', loader as unknown as Promise<IRawGrammar>)
+    if (language) {
+        const prom = activateLanguage(scopeName, language, 'now');
+        await prom;
+    }
+
+    // const editor = CodeMirror.fromTextArea(document.getElementById('cm-host') as HTMLTextAreaElement, {
+    //     lineNumbers: true,
+    //     // If you know in advance a language is going to be set on CodeMirror editor and it isn't preloaded by setting the third argument 
+    //     // to `activateLanguage` to 'now', the contents of the editor would start of and remain as unhighlighted text, until loading is complete
+    //     mode: 'typescript'
+    // })
+    // editor.setValue((await import('./modeSamples/typescript')).default)
+})()
