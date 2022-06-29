@@ -71,6 +71,11 @@ function dummyCompletion(): CompletionItem[] {
 			label: 'JavaScript',
 			kind: CompletionItemKind.Text,
 			data: 2
+		},
+		{
+			label: 'LogicalEnglish',
+			kind: CompletionItemKind.Text,
+			data: 3
 		}
 	];
 }

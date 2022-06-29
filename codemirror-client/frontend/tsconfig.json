@@ -6,12 +6,13 @@
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
     "target": "es6",
-    "lib": ["es6", "dom", "scripthost"],
+    "lib": ["es2022", "dom", "scripthost"], // es2020 ??
     "moduleResolution": "node",
     "declaration": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "module": "commonjs"
+    "module": "commonjs",
+    "sourceMap": true
   },
   "files": [
     "index.ts"

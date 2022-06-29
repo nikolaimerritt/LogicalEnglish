@@ -90,7 +90,7 @@ let html = {
 // logical-english/server folder needs to be `sudo npm link`ed, which should output
 // lsp-sample-server
 let js = {
-  serverUri: 'ws://0.0.0.0:8888/',// 'ws://localhost:3000/javascript',
+  serverUri: 'ws://localhost:3000/logical-english',
   languageId: 'logical-english',
   rootUri: (window as any).lspOptions.rootPath,
   documentUri: (window as any).lspOptions.jsPath,

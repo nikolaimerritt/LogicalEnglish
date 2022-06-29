@@ -15,6 +15,7 @@ import {
 	DidChangeConfigurationNotification,
 	TextDocumentSyncKind,
 	InitializeResult,
+	SemanticTokensParams
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -192,7 +193,7 @@ connection.onCompletion(params => {
 	return provideCompletions(document, params);
 });
 
-connection.languages.semanticTokens.on(params => {
+connection.languages.semanticTokens.on((params: SemanticTokensParams) => {
 	console.log('Server generating semantic tokens');
 
 	const document = documents.get(params.textDocument.uri);
