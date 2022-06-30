@@ -129,12 +129,10 @@ export function literalsInDocument(text: string): ContentRange<string>[] {
 
 export function intersectionOf<T>(lists: T[][]): T[] {
 	const allElements: T[] = [];
-	lists.forEach(list => {
-		list.forEach(el => {
-			if (!allElements.includes(el))
-				allElements.push(el);
-		});
-	});
+	for (const el of lists[0]) {
+		if (lists.every(list => list.includes(el)))
+			allElements.push(el);
+	}
 	// allElements is now a list of each element from each list
 
 	const intersection: T[] = [];
@@ -150,6 +148,19 @@ export function removeBlanks(words: string[]): string[] {
 	return words
 	.map(word => word.trim())
 	.filter(word => word.length > 0);
+}
+
+export function removeFirst<T>(list: T[], element: T): void {
+	const idx = list.indexOf(element);
+	if (idx === -1)
+		return;
+	
+	list.splice(idx, 1);
+}
+
+
+export function deepCopy<T>(object: T): T {
+	return JSON.parse(JSON.stringify(object));
 }
 
 

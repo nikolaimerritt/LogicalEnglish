@@ -5,6 +5,8 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments } from './utils';
+import { Template } from './template';
+import { cpSync } from 'fs';
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -30,16 +32,12 @@ export function textDocumentDiagnostics(maxNumberOfProblems: number, document: T
 
 
 export function debugOnStart() {
-	const text = 
-`
-bob likes fred 
-if bob likes apples
-and bob likes cheese
-or bob likes bread
-`;
-
-	console.log("Has misaligned connectives?");
-	console.log(clauseHasMisalignedConnectives(text));
+	const literals = [
+		'the big mother of the ugly person is unknown',
+		'the very large father of the hateful person is your dad'
+	];
+	console.log('Template:');
+	console.log(Template.fromLGG(literals));
 }
 
 

@@ -1,4 +1,4 @@
-import { intersectionOf, removeBlanks } from './utils';
+import { deepCopy, intersectionOf, removeBlanks, removeFirst } from './utils';
 
 export enum TemplateElementKind {
 	Argument,
@@ -81,7 +81,8 @@ export class Template {
 
 	public static fromLGG(literals: string[]): Template | undefined {
 		const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
-		const predicateWords = intersectionOf(wordsFromEachLiteral);
+		const predicateWords = Template.predicateWordsFromLiterals(wordsFromEachLiteral); // BUG: should produce 'the mother of the person is'
+		// produces 'the mother of person is'
 		
 		// assumes that literals all conform to same template
 		// takes first literal, compares against predicate words to construct a template
@@ -168,6 +169,26 @@ export class Template {
 		.flatMap(word => word.split(' '));
 
 		return Template.termsFromLiteral(literal, predicateWords);
+	}
+
+	// the 	big mother 		of the person is 	unknown
+	// the 	very ugly dad 	of the person is 	a citizen
+	// the 	___				of the person is	___
+
+	private static predicateWordsFromLiterals(literals: string[][]): string[] {
+		const literal = literals[0];
+		const otherLiterals: string[][] = deepCopy(literals.slice(1, undefined));
+		const predicateWords: string[] = [];
+
+		for (const word of literal) {
+			if (otherLiterals.every(literal => literal.includes(word))) {
+				predicateWords.push(word);
+				for (const otherLiteral of otherLiterals) 
+					removeFirst(otherLiteral, word);
+			}
+		}
+
+		return predicateWords;
 	}
 		
 	private static termsFromLiteral(literal: string, predicateWords: string[]): string[] {
