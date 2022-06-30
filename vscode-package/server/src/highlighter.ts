@@ -28,16 +28,7 @@ export function semanticTokens(document: TextDocument): SemanticTokens {
     const text = ignoreComments(document.getText());
     const builder = new SemanticTokensBuilder();
 
-    // const tokenDetails = {
-    //     line: 1,
-    //     char: 1, 
-    //     length: 10,
-    //     tokenType: encodeTokenType('class'),
-    //     tokenModifiers: encodeTokenModifier('declaration')
-    // };
-    // builder.push(tokenDetails.line, tokenDetails.char, tokenDetails.length, tokenDetails.tokenType, tokenDetails.tokenModifiers);
-
-    terminLiteralTokens(text).forEach(token => {
+    termInLiteralTokens(text).forEach(token => {
         const { line, char, length, tokenTypeName, tokenModifierName } = token;
         builder.push(line, char, length, encodeTokenType(tokenTypeName), encodeTokenModifier(tokenModifierName));
     });
@@ -46,7 +37,7 @@ export function semanticTokens(document: TextDocument): SemanticTokens {
 }
 
 
-function terminLiteralTokens(text: string): TokenDetails[] {
+function termInLiteralTokens(text: string): TokenDetails[] {
     const templates = templatesInDocument(text);
     const tokens: TokenDetails[] = [];
     
@@ -56,9 +47,10 @@ function terminLiteralTokens(text: string): TokenDetails[] {
         if (template !== undefined) {
             const terms = template.termsFromLiteral(literal);
             
-            let char = 0;
+            let char = range.start.character;
             for (const term of terms) {
-                char += literal.indexOf(term);
+                const termStart = literal.indexOf(term);
+                char += termStart;
                 tokens.push({
                     line: range.start.line,
                     char,
@@ -66,7 +58,7 @@ function terminLiteralTokens(text: string): TokenDetails[] {
                     tokenTypeName: 'variable',
                     tokenModifierName: null
                 });
-                literal = literal.slice(char, undefined);
+                literal = literal.slice(termStart, undefined);
             }
         }
     }

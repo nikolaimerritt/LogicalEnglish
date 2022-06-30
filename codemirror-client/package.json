@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "codemirror-textmate": "^1.1.0",
+    "jsonrpc-ws-proxy": "^0.0.5",
     "lodash-es": "^4.17.11",
     "vscode-jsonrpc": "^4.0.0",
     "vscode-languageclient": "^5.2.1",

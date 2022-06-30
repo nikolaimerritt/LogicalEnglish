@@ -32,7 +32,7 @@ export const literalHasNoTemplateMessage = "Literal has no template.";
 export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned connectives.';
 
 export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability: boolean, maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
-	// debugOnStart();
+	debugOnStart();
 	const text = ignoreComments(document.getText());
 
 	return [
@@ -44,26 +44,18 @@ export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapabilit
 
 
 export function debugOnStart() {
-	const texts = [
+	const text = 
 `
-hello if blob
-	and alpha
-	and beta
-		or gamma
-	and delta	
-`,
-`
-hi if blib
-		and espilon
-		or zeta
-		and eta
-			or theta
-`
-	];
+the templates are:
+*a person* likes *an object*
+ 
+the knowledge base subset includes:
+bob likes fred if
+	bob likes apples
+`;
 
-	texts.forEach(text => {
-		console.log(`text = ${text} has misaligned connectives? ${clauseHasMisalignedConnectives(text)}`);
-	});
+	console.log("Literals:");
+	console.log(literalsInDocument(text));
 }
 
 
