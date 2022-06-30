@@ -56,31 +56,35 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 	
 	const lines = text.split('\n');
 	const clauses: ContentRange<string>[] = [];
-	const startOfClause = /^[^\s].*$/;
-	const endOfClause = /^.*\.$/;
+	const clauseStartPattern = /^[^\s].*$/;
+	const clauseEndPattern = /^.*\.$/;
 
-	let clauseStartLine = undefined;
-	let clauseEndLine = undefined;
+	let clauseStart = undefined;
+	let clauseEnd = undefined;
+	let isInsideClause = false;
 
 	for (let l = clauseRange.start.line; l <= clauseRange.end.line && l < lines.length; l++) {
-		if (startOfClause.test(lines[l]))
-			clauseStartLine = l;
+		if (clauseStartPattern.test(lines[l]) && !isInsideClause) {
+			clauseStart = l;
+			isInsideClause = true;
+		}
 			
-		if (clauseStartLine !== undefined && endOfClause.test(lines[l])) {
-			clauseEndLine = l;
+		if (clauseStart !== undefined && clauseEndPattern.test(lines[l])) {
+			clauseEnd = l;
 			clauses.push({
-				content: lines.slice(clauseStartLine, clauseEndLine + 1).join('\n'),
+				content: lines.slice(clauseStart, clauseEnd + 1).join('\n'),
 				range: {
 					start: {
-						line: clauseStartLine,
+						line: clauseStart,
 						character: 0
 					},
 					end: {
-						line: clauseEndLine,
-						character: lines[clauseEndLine].length
+						line: clauseEnd,
+						character: lines[clauseEnd].length
 					}
 				} 
 			});
+			isInsideClause = false;
 		}
 	}
 

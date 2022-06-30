@@ -46,16 +46,14 @@ export function textDocumentDiagnostics(hasDiagnosticRelatedInformationCapabilit
 export function debugOnStart() {
 	const text = 
 `
-the templates are:
-*a person* likes *an object*
- 
-the knowledge base subset includes:
-bob likes fred if
-	bob likes apples
+bob likes fred 
+if bob likes apples
+and bob likes cheese
+or bob likes bread
 `;
 
-	console.log("Literals:");
-	console.log(literalsInDocument(text));
+	console.log("Has misaligned connectives?");
+	console.log(clauseHasMisalignedConnectives(text));
 }
 
 
@@ -87,6 +85,8 @@ function misalignedConnectivesDiags(text: string): Diagnostic[] {
 			});
 		}
 	}
+	console.log('Misaligned connectives diagnostics:');
+	console.log(diagnostics);
 	return diagnostics;
 }
 
