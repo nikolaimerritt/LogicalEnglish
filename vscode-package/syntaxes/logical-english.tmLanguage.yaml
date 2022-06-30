@@ -81,7 +81,7 @@ repository:
         name: entity.name.query.logical-english
   
   template-types:
-    match: '(\*)(an? \w[\s\w]*\w)(\*)'
+    match: '(\*)(\s*an? \w[\s\w]*)(\*)'
     name: entity.type.template.logical-english
     captures:
       '1':

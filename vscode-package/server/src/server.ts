@@ -174,7 +174,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
 
-	const diagnostics = textDocumentDiagnostics(hasDiagnosticRelatedInformationCapability, settings.maxNumberOfProblems, textDocument);
+	const diagnostics = textDocumentDiagnostics(settings.maxNumberOfProblems, textDocument);
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
