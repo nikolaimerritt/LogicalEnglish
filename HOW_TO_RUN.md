@@ -13,7 +13,7 @@ To install lsp-ws-proxy, git clone its repository at https://github.com/qualifie
 ## Initial set up
 From the `LogicalEnglish/vscode-package` directory, run `npm install`. This installs all the node packages for the syntax highlighter, language server, and visual studio code client. 
 
-To set up the language server for the codemirror client, from `LogicalEnglish/vscode-package/server`, run `npm link`. (You may have to run this command as `sudo`). This creates the language server as a node package called `le-server`. Test that it runs without errors by running `le-server --stdio`. This is supposed to produce no output.
+To set up the language server for the codemirror client, from `LogicalEnglish/vscode-package/server`, run `npm link`. (You may have to run this command as `sudo`). This creates the language server as a node package called `le-server`. Test that it launches without errors by running `le-server --stdio`. This is supposed to produce no output.
 
 From the `LogicalEnglish/codemirror-client` directory, run `npm install`. This installs all the node packages for the codemirror client and its frontend.
 
