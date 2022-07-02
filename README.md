@@ -4,11 +4,11 @@ You will need:
  - node (https://nodejs.org/en/download/) version 16.4.5 or newer
  - node package manager (`npm`) version 8.12.2 or newer
  - visual studio code (`code`) (https://code.visualstudio.com/download) version 1.68.1 or newer
- - lsp-ws-proxy (`lsp-ws-proxy`) (see below) version 0.9.0 or newer
+ - lsp-ws-proxy (`lsp-ws-proxy`) (https://github.com/qualified/lsp-ws-proxy, see below) version 0.9.0 or newer
  - (to install lsp-ws-proxy) rust (https://www.rust-lang.org/tools/install), specifically `cargo`, rust's build tool, version 1.61.0 or newer
 
 ## Installing lsp-ws-proxy
-To install lsp-ws-proxy, git clone its repository at https://github.com/qualified/lsp-ws-proxy. From the `lsp-ws-proxy` root folder, run `cargo build` to build the program using Rust's build tool. The desired executable, `lsp-ws-proxy`, can now be found in `target/debug`. 
+To install lsp-ws-proxy, git clone its repository at . From the `lsp-ws-proxy` root folder, run `cargo build` to build the program using Rust's build tool. The desired executable, `lsp-ws-proxy`, can now be found in `target/debug`. 
 
 ## Initial set up
 From the `LogicalEnglish/vscode-package` directory, run `npm install`. This installs all the node packages for the syntax highlighter, language server, and visual studio code client. 
