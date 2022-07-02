@@ -1,6 +1,6 @@
 # How to run the project
 ## Pre-requisites
-###You will need:
+You will need:
  - node (https://nodejs.org/en/download/) version 16.4.5 or newer
  - node package manager (`npm`) version 8.12.2 or newer
  - visual studio code (`code`) (https://code.visualstudio.com/download) version 1.68.1 or newer
