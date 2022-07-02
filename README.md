@@ -26,4 +26,4 @@ To run the client, press `Run -> Start Debugging`. This launches a new Visual St
 ## Running the codemirror client
 From `LogicalEnglish/vscode-package/server`, run `lsp-ws-proxy --listen 0.0.0.0:8888 -- le-server --stdio` (notice the space between `--` and `le-server`). This launches a WebSocket proxy to the language server that listens on port `8888` of local IP `0.0.0.0`. Verify that this works by opening `0.0.0.0:8888` on Google Chrome or Firefox. The webpage should say "OK".
 
-From `LogicalEnglish/codemirror-client/frontend`, run `npm run start` (if there is an error, you may have to first run `export --openssl-legacy-provider`). This starts the codemirror client on `localhost:4000`. Open `localhost:4000` in Google Chrome or Mozilla Firefox. You should see the codemirror editor.
+In a separate terminal, from `LogicalEnglish/codemirror-client/frontend`, run `npm run start`. (If there is an error, you may have to first run `export --openssl-legacy-provider`). This starts the codemirror client on `localhost:4000`. Open `localhost:4000` in Google Chrome or Mozilla Firefox. You should see the codemirror editor.
