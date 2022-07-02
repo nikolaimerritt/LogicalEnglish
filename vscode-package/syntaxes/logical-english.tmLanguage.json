@@ -79,14 +79,17 @@
       }
     },
     "knowledge-base-headers": {
-      "match": "^(\\s*)(the knowledge base \\w[\\w|\\s]+)(:)(\\s*)$",
+      "match": "^(\\s*)(the knowledge base) ([\\w|\\s]+) (includes)(:\\s*$)",
       "name": "entity.knowledge-base.logical-english",
       "captures": {
         "2": {
           "name": "storage.type.knowledge-base.logical-english"
         },
+        "3": {
+          "name": "variable.other.knowledge-base-name.logical-english"
+        },
         "4": {
-          "name": "punctuation.section.knowledge-base.begin.logical-english"
+          "name": "storage.type.knowledge-base.logical-english"
         }
       }
     },
