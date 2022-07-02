@@ -22,7 +22,7 @@ From the `LogicalEnglish/codemirror-client` directory, run `npm install`. This i
 From the `LogicalEnglish/vscode-package` directory, run `code .`. This launces Visual Studio Code in the `vscode-package` directory. This window, however, is for editing the project. 
 To run the client, press `Run -> Start Debugging`. This launches a new Visual Studio Code window that is connected to the language server. 
 
-From here, you can make a new Logical English (`your-file-name.le`) file, or open an existing file. The language server and syntax highlighter will work on these files.
+In the new window, you can make a new Logical English (`your-file-name.le`) file, or open an existing file. The language server and syntax highlighter will work on these files.
 
 
 ## Running the codemirror client
