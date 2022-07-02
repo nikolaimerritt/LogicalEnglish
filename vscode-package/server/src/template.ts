@@ -1,4 +1,4 @@
-import { deepCopy, intersectionOf, removeBlanks, removeFirst } from './utils';
+import { deepCopy, intersectionOf, removeBlanks, removeFirst, regexSanitise } from './utils';
 
 export enum TemplateElementKind {
 	Argument,
@@ -44,6 +44,7 @@ export class Template {
 	];
 
 	public static fromString(templateString: string): Template {
+		templateString = templateString.replace('.', '');
 		const argumentBlockRegex = /((?:\*)an? (?:[\w|\s]+)\*)/g;
 		const elementStrings = templateString.split(argumentBlockRegex);
 
@@ -64,8 +65,10 @@ export class Template {
 	}
 
 	public static fromLiteral(literal: string, terms: string[]): Template {
-		terms = removeBlanks(terms);		
-		const argumentBlockRegex = new RegExp(`(?:(${terms.join('|')}))`, 'g');
+		literal = literal.replace('.', '');
+		terms = removeBlanks(terms);
+		const sanitisedTerms = terms.map(regexSanitise);
+		const argumentBlockRegex = new RegExp(`(?:(${sanitisedTerms.join('|')}))`, 'g');
 		const elementStrings = removeBlanks(literal.split(argumentBlockRegex));
 
 		let variableIdx = 0;
@@ -81,8 +84,7 @@ export class Template {
 
 	public static fromLGG(literals: string[]): Template | undefined {
 		const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
-		const predicateWords = Template.predicateWordsFromLiterals(wordsFromEachLiteral); // BUG: should produce 'the mother of the person is'
-		// produces 'the mother of person is'
+		const predicateWords = Template.predicateWordsFromLiterals(wordsFromEachLiteral);
 		
 		// assumes that literals all conform to same template
 		// takes first literal, compares against predicate words to construct a template
@@ -163,6 +165,7 @@ export class Template {
 	}
 
 	public termsFromLiteral(literal: string): string[] {
+		literal = literal.replace('.', '');
 		const predicateWords = this.elements
 		.filter(el => el.type === TemplateElementKind.Word)
 		.map(w => (w as PredicateWord).word)

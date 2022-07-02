@@ -41,6 +41,7 @@ function termInLiteralTokens(text: string): TokenDetails[] {
     const templates = templatesInDocument(text);
     const tokens: TokenDetails[] = [];
     
+    // could be indexOf or regex used in literalsInDocument
     // eslint-disable-next-line prefer-const
     for (let { content: literal, range } of literalsInDocument(text)) {
         const template = templates.find(template => template.matchesLiteral(literal));

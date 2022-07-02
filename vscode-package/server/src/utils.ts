@@ -163,6 +163,11 @@ export function deepCopy<T>(object: T): T {
 	return JSON.parse(JSON.stringify(object));
 }
 
+// taken from https://stackoverflow.com/questions/6300183/sanitize-string-of-regex-characters-before-regexp-build
+export function regexSanitise(pattern: string): string {
+	return pattern.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
+}
+
 
 export function literalAtPosition(line: string, characterOffset: number): string | undefined {
 	const connectives = /\b(?:if|and|or|that|it is the case that|it is not the case that)\b/g;

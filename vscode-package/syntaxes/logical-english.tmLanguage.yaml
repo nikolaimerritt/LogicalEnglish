@@ -46,7 +46,8 @@ repository:
         name: punctuation.section.template.begin.logical-english
 
   knowledge-base-headers:
-    match: '^(\s*)(the knowledge base \w[\w|\s]+)(:)(\s*)$'
+    # match: '^(\s*)(the knowledge base \w[\w|\s]+)(:)(\s*)$'
+    match: '^(\s*)(the knowledge base) ([\w|\s]+) (includes:)() '
     name: entity.knowledge-base.logical-english
     captures:
       '2': 
