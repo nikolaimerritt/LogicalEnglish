@@ -15,6 +15,7 @@ import { loadWASM } from 'onigasm';
 import { addGrammar, activateLanguage } from 'codemirror-textmate';
 import logicalEnglishHighlighting from './logical-english.tmLanguage.json';
 import { IRawGrammar } from 'monaco-textmate';
+import { ILspOptions } from '../src';
 
 let sampleJs = `
 let values = [15, 2, 7, 9, 17, 99, 50, 3];
@@ -24,6 +25,15 @@ for (let i; i < values.length; i++) {
   total += values[i];
 }
 `;
+
+const sampleLogicalEnglish = `
+the templates are:
+*a person* really likes *an object*.
+
+the knowledge base sample includes:
+fred bloggs really likes apples.
+steve myers doesnt like frogs.
+`
 
 let sampleHtml = `
 <html>
@@ -70,12 +80,14 @@ let jsEditor = CodeMirror(document.querySelector('.js'), {
   gutters: ['CodeMirror-lsp'],
 });
 
-interface lspServerOptions {
-  rootPath: string;
-  htmlPath: string;
-  cssPath: string;
-  jsPath: string;
-}
+const logicalEnglishEditor = CodeMirror(document.querySelector('.le'), {
+    theme: 'idea',
+    lineNumbers: true,
+    mode: 'logical-english',
+    value: sampleLogicalEnglish,
+    gutters: ['CodeMirror-lsp']
+});
+
 
 let html = {
   serverUri: 'ws://localhost:3000/html',
@@ -90,7 +102,8 @@ let html = {
 // logical-english/server folder needs to be `sudo npm link`ed, which should output
 // lsp-sample-server
 let js = {
-  serverUri: 'ws://localhost:3000/logical-english',
+  // serverUri: 'ws://localhost:3000/logical-english',
+  serverUri: 'ws://0.0.0.0:8888',
   languageId: 'logical-english',
   rootUri: (window as any).lspOptions.rootPath,
   documentUri: (window as any).lspOptions.jsPath,
@@ -105,6 +118,14 @@ let css = {
   documentText: () => cssEditor.getValue(),
 };
 
+const logicalEnglishConfig: ILspOptions = {
+    serverUri: 'ws://0.0.0.0:8888',
+    languageId: 'logical-english',
+    rootUri: (window as any).lspOptions.rootPath,
+    documentUri: (window as any).lspOptions.logicalEnglishPath,
+    documentText: () => logicalEnglishEditor.getValue()
+};
+
 let htmlConnection = new LspWsConnection(html).connect(new WebSocket(html.serverUri));
 let htmlAdapter = new CodeMirrorAdapter(htmlConnection, {
   quickSuggestionsDelay: 100,
@@ -117,6 +138,10 @@ let jsConnection = new LspWsConnection(js).connect(new WebSocket(js.serverUri));
 let jsAdapter = new CodeMirrorAdapter(jsConnection, {
   quickSuggestionsDelay: 50,
 }, jsEditor);
+
+
+const logicalEnglishConn = new LspWsConnection(logicalEnglishConfig).connect(new WebSocket(logicalEnglishConfig.serverUri));
+const logicalEnglishAdaptor = new CodeMirrorAdapter(logicalEnglishConn, { quickSuggestionsDelay: 100 }, logicalEnglishEditor);
 
 
 (async () => {

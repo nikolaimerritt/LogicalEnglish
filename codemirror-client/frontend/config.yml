@@ -10,6 +10,6 @@ langservers:
   javascript:
     - node
     - './node_modules/javascript-typescript-langserver/lib/language-server-stdio.js'
-  logical-english:
-    - le-server
-    - '--stdio'
+  # logical-english:
+  #   - le-server
+  #   - '--stdio'
