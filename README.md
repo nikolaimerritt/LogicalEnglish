@@ -1,7 +1,7 @@
 # How to run the project
 ## Pre-requisites
 You will need:
- - node (https://nodejs.org/en/download/) version 16.4.5 or newer
+ - node (`node`) (https://nodejs.org/en/download/) version 16.4.5 or newer
  - node package manager (`npm`) version 8.12.2 or newer
  - visual studio code (`code`) (https://code.visualstudio.com/download) version 1.68.1 or newer
  - lsp-ws-proxy (`lsp-ws-proxy`) (https://github.com/qualified/lsp-ws-proxy, see below) version 0.9.0 or newer
