@@ -59,7 +59,8 @@ function termInLiteralTokens(text: string): TokenDetails[] {
                     tokenTypeName: 'variable',
                     tokenModifierName: null
                 });
-                literal = literal.slice(termStart, undefined);
+                literal = literal.slice(termStart + term.length, undefined);
+                char += term.length;
             }
         }
     }
