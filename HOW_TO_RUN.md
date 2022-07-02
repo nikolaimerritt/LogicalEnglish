@@ -1,4 +1,4 @@
-# How to run the Logical English Language Server
+# How to run the Logical English Language server and clients
 ## Pre-requisites
 You will need:
  - node (https://nodejs.org/en/download/) version 16.4.5 or newer
