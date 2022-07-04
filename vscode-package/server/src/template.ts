@@ -33,14 +33,14 @@ export class Template {
 	}
 
 	private static readonly _variableNames = [
+		'an X',
+		'a Y',
+		'a Z',
 		'an A',
 		'a B',
 		'a C',
 		'a D',
-		'an E',
-		'an F',
-		'a G',
-		'an H'
+		'an E'
 	];
 
 	public static fromString(templateString: string): Template {
@@ -201,20 +201,20 @@ export class Template {
 
 		literalWords.forEach(word => {
 			if (predicateWords.length > 0 && word === predicateWords[0]) {
-				if (currentTerm.length !== 0) {
+				if (currentTerm.length > 0) {
 					terms.push(currentTerm);
 					currentTerm = '';
 				}
 				predicateWords.shift(); // pop first word
 			}
 			else {
-				if (currentTerm.length !== 0)
+				if (currentTerm.length > 0)
 					currentTerm += ' ';
 				currentTerm += word;
 			}
 		});
 
-		if (currentTerm.length !== 0) 
+		if (currentTerm.length > 0) 
 			terms.push(currentTerm);
 
 		return terms;

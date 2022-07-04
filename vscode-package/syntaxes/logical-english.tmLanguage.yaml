@@ -58,30 +58,48 @@ repository:
         name: storage.type.knowledge-base.logical-english
   
   scenario-headers:
-    begin: '^(\s*)(scenario)'
-    beginCaptures:
-      '2': { name: storage.type.scenario.logical-english }
-    end: '(is)(?=:\s*$)'
-    endCaptures:
-      '1': { name: storage.type.scenario.logical-english }
-      '2': { name: punctuation.section.scenario.begin.logical-english }
+    # begin: '^(\s*)(scenario)'
+    # beginCaptures:
+    #   '2': { name: storage.type.scenario.logical-english }
+    # end: '(is)(?=:\s*$)'
+    # endCaptures:
+    #   '1': { name: storage.type.scenario.logical-english }
+    #   '2': { name: punctuation.section.scenario.begin.logical-english }
+    # name: entity.scenario.logical-english
+    # patterns:
+    #   - match: ' (\w[\w|\s]*) '
+    #     name: entity.name.scenario.logical-english
+    match: '^(\s*)(scenario) ([\w|\s]+) (is)(:\s*$)'
     name: entity.scenario.logical-english
-    patterns:
-      - match: ' (\w[\w|\s]*) '
-        name: entity.name.scenario.logical-english
+    captures:
+      '2':
+        name: storage.type.scenario.logical-english
+      '3':
+        name: variable.other.scenario-name.logical-english
+      '4':
+        name: storage.type.scenario.logical-english
   
   query-headers:
-    begin: '^(\s*)(query)'
-    beginCaptures:
-      '2': { name: storage.type.query.logical-english }
-    end: '(is)(?=:\s*$)'
-    endCaptures:
-      '1': { name: storage.type.query.logical-english }
-      '2': { name: punctuation.section.query.begin.logical-english }
+    # begin: '^(\s*)(query)'
+    # beginCaptures:
+    #   '2': { name: storage.type.query.logical-english }
+    # end: '(is)(?=:\s*$)'
+    # endCaptures:
+    #   '1': { name: storage.type.query.logical-english }
+    #   '2': { name: punctuation.section.query.begin.logical-english }
+    # name: entity.query.logical-english
+    # patterns:
+    #   - match: ' (\w[\w|\s]*) '
+    #     name: entity.name.query.logical-english
+    match: '^(\s*)(query) ([\w|\s]+) (is)(:\s*$)'
     name: entity.query.logical-english
-    patterns:
-      - match: ' (\w[\w|\s]*) '
-        name: entity.name.query.logical-english
+    captures:
+      '2':
+        name: storage.type.query.logical-english
+      '3':
+        name: variable.other.query-name.logical-english
+      '4':
+        name: storage.type.query.logical-english
   
   template-types:
     match: '(\*)(\s*an? \w[\s\w]*)(\*)'
