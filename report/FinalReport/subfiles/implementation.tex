@@ -1,0 +1,17 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Implementation}
+\section{Technology Stack}
+Before any work could be done, I needed to decide on which technology stack to use. This was dictated mainly by the programming language involved. The following features were needed:
+\\
+\textbf{Linux, Windows and Mac OS support} \\
+The language server had to be able to connect to offline editors, and therefore run on user's desktops. This meant that the most up-to-date editions of the three most popular operating systems -- Linux, Windows and Mac OS X -- had to be supported.
+\\
+\textbf{Support for strong typing} \\
+Since creating a language server is a large and complex project, I needed to be using a langauge with strong typing in order to both avoid mistakes and receive context-aware support from my IDE.
+\\
+\textbf{A Language Server Protocol API} \\
+Writing Language Server Protocol requests manually would be inefficient, time-consuming and a potential cause of errors. A library that abstracted away the exact layout and content of Language Server Protocol requests would aid productivity.
+\\ \\ 
+These last two requirements only left two options: the \texttt{Microsoft.VisualStudio.LanguageServer} API, written for C\# \cite{visual_studio_language_server}, and the \texttt{vscode-languageserver} package, written for TypeScript \cite{vsc_langserver_docs}. Since these 
+\end{document}
