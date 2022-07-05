@@ -1,17 +1,33 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 \chapter{Implementation}
-\section{Technology Stack}
+\section{The Technology Stack}
+\subsection{The Language Server}
 Before any work could be done, I needed to decide on which technology stack to use. This was dictated mainly by the programming language involved. The following features were needed:
+\\
 \\
 \textbf{Linux, Windows and Mac OS support} \\
 The language server had to be able to connect to offline editors, and therefore run on user's desktops. This meant that the most up-to-date editions of the three most popular operating systems -- Linux, Windows and Mac OS X -- had to be supported.
 \\
+\\
 \textbf{Support for strong typing} \\
 Since creating a language server is a large and complex project, I needed to be using a langauge with strong typing in order to both avoid mistakes and receive context-aware support from my IDE.
 \\
+\\
 \textbf{A Language Server Protocol API} \\
 Writing Language Server Protocol requests manually would be inefficient, time-consuming and a potential cause of errors. A library that abstracted away the exact layout and content of Language Server Protocol requests would aid productivity.
-\\ \\ 
-These last two requirements only left two options: the \texttt{Microsoft.VisualStudio.LanguageServer} API, written for C\# \cite{visual_studio_language_server}, and the \texttt{vscode-languageserver} package, written for TypeScript \cite{vsc_langserver_docs}. Since these 
+\\ 
+\\
+These last two requirements only left two libraries: the \\ 
+\texttt{Microsoft.VisualStudio.LanguageServer}, written for C\# \cite{visual_studio_language_server}, or \texttt{vscode-languageserver}, written for TypeScript \cite{vsc_langserver_docs}. Since these libraries are were created by Microsoft \footnote{This should not be surprising, as Microsoft also created the Language Server Protocol.}, they are structured quite similarly. 
+\\
+\\
+In the end, the TypeScript library was chosen over the C\# library. Both libraries being quite similar, this decision was made because TypeScript was better suited for the task than C\#. The Language Server Protocol communicates using JSON, and TypeScript can handle JSON more fluidly than C\# can. Useful features include destructuring JSON, typing JSON objects uniquely based on their fields, and treating JSON objects as implementing interfaces that have the same fields. This decision being made, the resulting technology stack was TypeScript run locally using \texttt{Node.JS}. 
+
+\subsection{The Syntax Highlighter}
+The Language extension consisted of both a language server and a syntax highlighter.
+
+\subsection{The Language Client}
+Language servers written using the \texttt{vscode-languageserver} library connect seamlessly to visual studio code language clients written using the \texttt{vscode-languageclient} package. Thus, my main method of day-to-day testing was done using a local visual studio code client. I could be assured that all errors I found were due to the language server itself, not the connection, since the two libraries were built with each other in mind. Tests were also done using a Codemirror 5 client that ran locally in the browser, to see which features carried over to Codemirror 5.
+
 \end{document}

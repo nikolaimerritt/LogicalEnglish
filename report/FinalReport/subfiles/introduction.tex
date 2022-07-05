@@ -15,4 +15,10 @@ When deciding what type of language extension to create, we surveyed a variety o
 This prompted us to then consider Monaco. \textbf{-- why were we considering Monaco? --}.
 \\ \\ 
 In the end, we found that what we really needed was a language server. This language server would be editor-agnostic, meaning that one language server would be able to connect to any front-end that supports the Language Server Protocol. This includes online editors such as Codemirror 6 \cite{codemirror_6_language_server} and Monaco \cite{monaco_language_server}, along with desktop editors such as Visual Studio Code \cite{vsc_langserver_docs}, Visual Studio \cite{visual_studio_language_server} and IntelliJ \cite{intellij_language_server} some of the most popular code editors \cite{ide_rankings}. I also found that the language server I produced was able to communicate error messages with Codemirror 5. Logical English is still in an early stage of development, and producing a language server would give us the flexibility needed to branch out to all kinds of coding environments.
+
+\subsection{Why a separate Syntax Highlighter?}
+Although language servers can mark code for highlighting (and, indeed, mine does), it is common to delegate all the syntactic highlighting to the client. This is done for efficiency reasons. Syntactic highlighting does not need a complex algorithm to parse the document, and it would be a waste of resources to do so: instead, it can be done through identifying parts of the document using regular expressions. 
+\\ 
+\\
+Throughout this report, the words ``language extension" will refer to the language server and syntax highlighter together.
 \end{document}
