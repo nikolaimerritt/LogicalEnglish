@@ -34,7 +34,6 @@ Language servers written using the \texttt{vscode-languageserver} library connec
 
 
 \section{The Syntax Highlighter}
-\todo[inline]{I don't know how much of this is actually important. All I can do is just list features: there really isn't much to their implementation as they are just named regex rules.}
 Using TextMate grammar, the syntax highlighter identified three tiers of Logical English features.
 
 \subsection{Sub-Line Features}
@@ -56,9 +55,40 @@ The knowledge base, scenario and query headers all support being named. Thus, th
 It is interesting to note what TextMate grammar identifiers are used to mark the headers. Following the TextMate naming conventions \cite{textmate_grammars_spec} is essential to maximise the amount of colour schemes that colour Logical English documents correctly. However, the guidelines are quite vague, with \codeword{entity}, \codeword{meta} and \codeword{markup.heading} all being recommended for use in marking up section headers. 
 \\ 
 \\
-The most pragmatic course of action was to survey a variety of popular TextMate grammars. Finding analogies of section headers in popular languages was difficult. In C-style languages, sections of code are either labelled with single-word keywords such as \codeword{if}, \codeword{for} or \codeword{while}, or also name a type of data structure, such as class or interface names. These are semantically quite different from Logical English section headers. In the end, I settled on a function name, used in a function definition or declaration, as being the closest analogy. Although the function name may reappear in the document, it does not represent a type and rarely represents data (the data instead usually being the return value, at the end of a function call). This was usually labelled with \codeword{entity.name} prefix. The fact that the names of HTML tags are also labelled with \codeword{entity.name} was further evidence that \codeword{entity.name} was the best choice.
+The most pragmatic course of action was to survey a variety of popular TextMate grammars. Finding analogies of section headers in popular languages was difficult. In C-style languages, sections of code are either labelled with single-word keywords such as \codeword{if}, \codeword{for} or \codeword{while}, or also name a type of data structure, such as class or interface names. These are semantically quite different from Logical English section headers. In the end, I settled on a function name, used in a function definition or declaration, as being the closest analogy. Although the function name may reappear in the document, it does not represent a type and rarely represents data (the data instead usually being the return value, at the end of a function call). This was usually labelled with \codeword{entity.name} prefix. The fact that the names of HTML tags are also labelled with \codeword{entity.name} was further evidence that \codeword{entity.name} was the best choice. 
+\todo[inline]{Put some references to popular IDE's default TextMate schemes here. Also maybe talk about why the name of a query / section / knowledge base is given variable.}
+
 
 \section{The Language Server}
+The language server is a complex tool and has multiple features. Each category of feature corresponds, in the most part, been extracted into a single source code file. 
+
+
+\subsection{Design choices}
+\todo[inline]{Research design methodologies, cite which methodology corresponds to mine.}
+In parsing a Logical English document, the language server is heavily reliant on ``helper functions". A common class of problem is, given a pattern or structure, to extract parts of a block of code according to the pattern. For instance, is done in (but is not limited to):
+\begin{itemize}
+    \item extracting the template section or knowledge base section from the document
+    \item extracting clauses from the knowledge base section, and templates from the template section
+    \item extracting literals from clauses
+    \item extracting terms from a literal, assuming that a literal matches a given template
+\end{itemize}
+These core functionalities are used throughout the language server. 
+
+
+\subsection{Connection to a Language Client}
+\todo[inline]{Research more about how this works.}
+
+
+\subsection{Semantic Highlighting}
+The language server understands the semantics of a logical english document in highlighting the terms that appear in literals. Mere syntactic highlighting is not powerful enough to do this. The structure of each literal, and the template that it corresponds to, has to be understood in order for this to take place.
+\\ 
+\\
+
+\subsection{Code Completion}
+
+\subsection{Error Diagnostics}
+
+\subsection{Error Fixes}
 
 \section{The Visual Studio Code Language Client}
 
