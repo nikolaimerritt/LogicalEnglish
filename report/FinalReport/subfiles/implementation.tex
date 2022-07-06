@@ -34,6 +34,29 @@ Language servers written using the \texttt{vscode-languageserver} library connec
 
 
 \section{The Syntax Highlighter}
+\todo[inline]{I don't know how much of this is actually important. All I can do is just list features: there really isn't much to their implementation as they are just named regex rules.}
+Using TextMate grammar, the syntax highlighter identified three tiers of Logical English features.
+
+\subsection{Sub-Line Features}
+The syntax highlighter marks keywords that are contained within a single line, such as \codeword{if}, \codeword{and}, \codeword{or}, \codeword{it is the case that} and \codeword{it is not the case that}. It also marks the pre-defined constant term \codeword{unknown}. This is done simply by recognising these keywords wherever they appear and are surrounded by word boundaries (i.e. spaces, tabs or other non-word characters). 
+\\ 
+\\ 
+A proposed feature is for the language extension to allow for such keywords to appear in template names, where they would have to be marked differently. This would not be a problem: the language server can override the syntax highlighter in its semantic highlighting.
+\\ 
+\\ 
+The syntax highlighter also marks single-line comments that begin with \codeword{\%} and span until the end of the line. However, all the syntax highlighter does is mark them: it is a separate feature of the language server to ignore comments.
+
+\subsection{Single-Line features}
+The syntax highlighter also marks the headers of sections of a Logical English document. For the template section header, \codeword{the templates are:}, the characters from the initial \codeword{t} up to the final \codeword{e} is marked as a single header block. Beginning at the initial word character is an important point, since Logical English allows headers to be indented. 
+\\ 
+\\\
+The knowledge base, scenario and query headers all support being named. Thus, their names are marked separately from the rest of the header. 
+\\ 
+\\
+It is interesting to note what TextMate grammar identifiers are used to mark the headers. Following the TextMate naming conventions \cite{textmate_grammars_spec} is essential to maximise the amount of colour schemes that colour Logical English documents correctly. However, the guidelines are quite vague, with \codeword{entity}, \codeword{meta} and \codeword{markup.heading} all being recommended for use in marking up section headers. 
+\\ 
+\\
+The most pragmatic course of action was to survey a variety of popular TextMate grammars. Finding analogies of section headers in popular languages was difficult. In C-style languages, sections of code are either labelled with single-word keywords such as \codeword{if}, \codeword{for} or \codeword{while}, or also name a type of data structure, such as class or interface names. These are semantically quite different from Logical English section headers. In the end, I settled on a function name, used in a function definition or declaration, as being the closest analogy. Although the function name may reappear in the document, it does not represent a type and rarely represents data (the data instead usually being the return value, at the end of a function call). This was usually labelled with \codeword{entity.name} prefix. The fact that the names of HTML tags are also labelled with \codeword{entity.name} was further evidence that \codeword{entity.name} was the best choice.
 
 \section{The Language Server}
 

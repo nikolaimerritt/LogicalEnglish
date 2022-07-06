@@ -25,6 +25,7 @@
 \usepackage{fancyhdr} % page layout
 \usepackage{url} % URLs
 \usepackage[english]{babel}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{dsfont}
@@ -39,6 +40,12 @@
 \usepackage{xparse}
 \usepackage{listings}
 \usepackage[pdftex,pagebackref,hypertexnames=false,colorlinks]{hyperref} % provide links in pdf
+
+\usepackage{color}
+%\usepackage[tight,ugly]{units}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage[colorinlistoftodos]{todonotes}
 
 % \lstset{keywordstyle={\bfseries \color{blue}}}
 \bibliographystyle{abbrvnat}
@@ -61,12 +68,8 @@
 
 \usepackage[all]{hypcap}
 
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
 
-%\usepackage{color}
-%\usepackage[tight,ugly]{units}
-%\usepackage{float}
-%\usepackage{tcolorbox}
-%\usepackage[colorinlistoftodos]{todonotes}
 % \usepackage{ntheorem}
 % \theoremstyle{break}
 % \newtheorem{lemma}{Lemma}
