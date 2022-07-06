@@ -79,7 +79,7 @@
       }
     },
     "knowledge-base-headers": {
-      "match": "^(\\s*)(the knowledge base) ([\\w|\\s]+) (includes)(:\\s*$)",
+      "match": "^(\\s*)(the knowledge base) ([\\w|\\s]*)(includes)(:\\s*$)",
       "name": "entity.knowledge-base.logical-english",
       "captures": {
         "2": {

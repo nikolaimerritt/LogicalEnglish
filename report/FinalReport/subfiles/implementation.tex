@@ -19,15 +19,24 @@ Writing Language Server Protocol requests manually would be inefficient, time-co
 \\ 
 \\
 These last two requirements only left two libraries: the \\ 
-\texttt{Microsoft.VisualStudio.LanguageServer}, written for C\# \cite{visual_studio_language_server}, or \texttt{vscode-languageserver}, written for TypeScript \cite{vsc_langserver_docs}. Since these libraries are were created by Microsoft \footnote{This should not be surprising, as Microsoft also created the Language Server Protocol.}, they are structured quite similarly. 
+\texttt{Microsoft.VisualStudio.LanguageServer}, written for C\# \cite{visual_studio_language_server}, or \\ 
+\texttt{vscode-languageserver}, written for TypeScript \cite{vsc_langserver_docs}. Since these libraries are were created by Microsoft \footnote{This should not be surprising, as Microsoft also created the Language Server Protocol.}, they are structured quite similarly. 
 \\
 \\
-In the end, the TypeScript library was chosen over the C\# library. Both libraries being quite similar, this decision was made because TypeScript was better suited for the task than C\#. The Language Server Protocol communicates using JSON, and TypeScript can handle JSON more fluidly than C\# can. Useful features include destructuring JSON, typing JSON objects uniquely based on their fields, and treating JSON objects as implementing interfaces that have the same fields. This decision being made, the resulting technology stack was TypeScript run locally using \texttt{Node.JS}. 
+In the end, the TypeScript library was chosen over the C\# library. Both libraries being quite similar, this decision was made because TypeScript was better suited for the task than C\#. The Language Server Protocol communicates using JSON, and TypeScript can handle JSON more fluidly than C\# can. Useful features include destructuring JSON, giving JSON objects unique types based on their fields, and treating JSON objects as implementing interfaces that have the same fields. This decision being made, the resulting technology stack was TypeScript run locally using \codeword{Node.JS}. 
 
 \subsection{The Syntax Highlighter}
-The Language extension consisted of both a language server and a syntax highlighter.
+Since the syntax highlighting is specified in a single JSON document, the technology stack required was minimal. Rather than writing the JSON document directly, I chose to write the TextMate grammar in a YAML document, from which the JSON document was then automatically generated using the command \codeword{yq} \cite{yq_repo}. This was done because of the length of the JSON required: YAML documents are easier to read due to their less cluttered syntax, with the scope of objects being determined by whitespace rather than brackets. Writing regular expressions is also easier in a YAML document. Regular expressions feature many backslashes: in JSON, unlike in YAML, these backslashes need to be escaped with another backslash. Regular expressions are confusing enough to read as they are -- I did not need any added confusion by having to parse escaped backslashes in my head!
 
 \subsection{The Language Client}
 Language servers written using the \texttt{vscode-languageserver} library connect seamlessly to visual studio code language clients written using the \texttt{vscode-languageclient} package. Thus, my main method of day-to-day testing was done using a local visual studio code client. I could be assured that all errors I found were due to the language server itself, not the connection, since the two libraries were built with each other in mind. Tests were also done using a Codemirror 5 client that ran locally in the browser, to see which features carried over to Codemirror 5.
+
+
+
+\section{The Syntax Highlighter}
+
+\section{The Language Server}
+
+\section{The Visual Studio Code Language Client}
 
 \end{document}

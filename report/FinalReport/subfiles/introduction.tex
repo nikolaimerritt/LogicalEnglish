@@ -20,5 +20,8 @@ In the end, we found that what we really needed was a language server. This lang
 Although language servers can mark code for highlighting (and, indeed, mine does), it is common to delegate all the syntactic highlighting to the client. This is done for efficiency reasons. Syntactic highlighting does not need a complex algorithm to parse the document, and it would be a waste of resources to do so: instead, it can be done through identifying parts of the document using regular expressions. 
 \\ 
 \\
-Throughout this report, the words ``language extension" will refer to the language server and syntax highlighter together.
+This is commonly done using a TextMate grammars \cite{textmate_grammars_spec} document. This is a JSON document that assigns certain standard labels to sections of the document that match regular expressions. Syntax highlighting using TextMate grammars is supported by all the IDEs mentioned above.
+\\ 
+\\
+Throughout this report, the term ``language extension" will refer to the language server and syntax highlighter together.
 \end{document}
