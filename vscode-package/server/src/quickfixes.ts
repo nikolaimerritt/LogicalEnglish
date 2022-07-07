@@ -19,7 +19,6 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 
 
 
-
 function literalWithNoTemplateFixes(text: string, params: CodeActionParams): CodeAction[] {
 	const templates = templatesInDocument(text);
 	const literalsWithNoTemplate = literalsInDocument(text)

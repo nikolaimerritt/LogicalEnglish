@@ -41,6 +41,7 @@ export function debugOnStart() {
 }
 
 
+// refactor to export function text -> literals with no template
 function literalHasNoTemplateDiags(text: string): Diagnostic[] {
 	const templates = templatesInDocument(text);
 

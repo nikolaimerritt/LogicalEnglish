@@ -141,6 +141,9 @@ Given a literal and a list of the literal's terms, it is fairly straightforward 
 The above two functionalities are put together to determine whether a literal $L$ matches a given template $T$. I first assume that $L$ does indeed match $T$, and extract $L$'s terms. Using $L$'s terms, I generalise $L$ into a new template $T^\prime$. It then suffices to check whether $T$ and $T^\prime$ are isomorphic: that is, whether $T$'s variables could be renamed to give $T^\prime$.
 \todo[inline]{Write this as a formal proof.}
 
+\subsection{Genreralising two or more literals into a shared template}
+Talk about Least General Generalisation.
+
 \subsection{Connection to a Language Client}
 \todo[inline]{Research more about how this works.}
 
@@ -156,12 +159,26 @@ The semantic highlighter finds the first template that matches each literal.
 
 
 \subsection{Code Completion}
-
+Here I'll explain how half-written literals are matched against templates. I'll explain Template.matchScore, how half-written literals can have their existing terms extracted and substituted into their template. 
 
 \subsection{Error Diagnostics}
+Here I'll explain how literals are iterated over and checked whether they match any template. ContentRange is used to work out where the error diagnostic should go.  \\ 
+I'll also talk about how clauses are checked for misaligned connectives. ContentRange is used to work out where error diagnostic should go.
 
 \subsection{Error Fixes}
+Explain how the literals without any template are re-calculated, and talk about how this is inefficient but necessary by my stateless design. May optimise later. 
+\\ 
+\\ 
+Talk about how the least general generalisation of all template-less literals is calculated. Why it is a good idea in practice to generate a template from all such literals -- users will start with code where all literals match and introduce new literals that dont match. 
+\\ 
+\\ 
+Here I should also talk about doing more than just LGG. If Im in a clause where literal A has T as a term, and I write a literal B that uses T, then when generalising B I should replace T with a varaible.
+
 
 \section{The Visual Studio Code Language Client}
+\todo[inline]{Research how connection works}
+
+\section{The Codemirror Language Client}
+Talk about how it connects to language server via a stdio to websocket proxy.
 
 \end{document}

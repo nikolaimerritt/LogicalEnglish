@@ -4,15 +4,15 @@ import { literalAtPosition, sectionRange, templatesInDocument } from './utils';
 
 
 export function provideCompletions(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {	
+	const text = document.getText();
 	return [
-		...literalCompletion(document, params),
+		...literalCompletion(text, params),
 		...dummyCompletion()
 	];
 }
 
 
-function literalCompletion(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {
-	const text = document.getText();
+function literalCompletion(text: string, params: TextDocumentPositionParams): CompletionItem[] {
 	const knowledgeBaseRange = sectionRange('knowledge base', text);
 	if (knowledgeBaseRange === undefined 
 			|| params.position.line < knowledgeBaseRange.start.line 
@@ -21,7 +21,7 @@ function literalCompletion(document: TextDocument, params: TextDocumentPositionP
 	
 	const templates = templatesInDocument(text);
 
-	const line = document.getText().split('\n')[params.position.line];
+	const line = text.split('\n')[params.position.line];
 	const literal = literalAtPosition(line, params.position.character);
 	if (literal === undefined)
 		return [];
