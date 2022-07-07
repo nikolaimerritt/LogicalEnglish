@@ -1,13 +1,14 @@
+import { WorkDoneProgressBegin } from 'vscode-languageserver';
 import { deepCopy, intersectionOf, removeBlanks, removeFirst, regexSanitise } from './utils';
 
 export enum TemplateElementKind {
-	Argument,
+	Variable,
 	Word
 }
 
-export class TemplateArgument {
+export class TemplateVariable {
 	public readonly name: string;
-	public readonly type = TemplateElementKind.Argument;
+	public readonly type = TemplateElementKind.Variable;
 
 	constructor(_name: string) {
 		this.name = _name;
@@ -23,7 +24,7 @@ export class PredicateWord {
 	}
 }
 
-export type TemplateElement = TemplateArgument | PredicateWord;
+export type TemplateElement = TemplateVariable | PredicateWord;
 
 export class Template {
 	private readonly elements: TemplateElement[];
@@ -56,7 +57,7 @@ export class Template {
 		.map(el => {
 			const argName = el.match(argumentNameRegex);
 			if (argName !== null) 
-				return new TemplateArgument(Template._variableNames[variableIdx++]);
+				return new TemplateVariable(Template._variableNames[variableIdx++]);
 			
 			return new PredicateWord(el);
 		});
@@ -75,7 +76,7 @@ export class Template {
 		const elements: TemplateElement[] = elementStrings
 		.map(el => {
 			if (terms.includes(el)) 
-				return new TemplateArgument(Template._variableNames[variableIdx++]);
+				return new TemplateVariable(Template._variableNames[variableIdx++]);
 			return new PredicateWord(el);
 		});
 
@@ -141,7 +142,7 @@ export class Template {
 	public toString(): string {
 		return this.elements
 		.map(el => {
-			if (el.type === TemplateElementKind.Argument)
+			if (el.type === TemplateElementKind.Variable)
 				return `*${el.name}*`;
 			
 			return el.word;
@@ -153,7 +154,7 @@ export class Template {
 		let snippet = '';
 		let placeholderCount = 0;
 		this.elements.forEach(el => {
-			if (el.type === TemplateElementKind.Argument) {
+			if (el.type === TemplateElementKind.Variable) {
 				placeholderCount++;
 				snippet += '${' + placeholderCount + ':' + el.name + '}';
 			} else 
@@ -297,7 +298,7 @@ export class Template {
 		this.elements.forEach(element => {
 			if (element.type === TemplateElementKind.Word) 
 				templateElements.push(element);
-			else if (element.type === TemplateElementKind.Argument) {
+			else if (element.type === TemplateElementKind.Variable) {
 				if (terms.length > 0) {
 					templateElements.push(new PredicateWord(terms[0]));
 					terms.shift(); // remove first term
