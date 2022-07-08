@@ -43,7 +43,7 @@ export function templatesInDocument(text: string): Template[] {
 	const templates = text
 	.split('\n')
 	.slice(templateRange.start.line, templateRange.end.line)
-	.map(Template.fromString);
+	.map(string => Template.fromString(string));
 
 	return templates;
 }

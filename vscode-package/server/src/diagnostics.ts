@@ -32,12 +32,8 @@ export function textDocumentDiagnostics(maxNumberOfProblems: number, document: T
 
 
 export function debugOnStart() {
-	const literals = [
-		'the big mother of the ugly person is unknown',
-		'the very large father of the hateful person is your dad'
-	];
-	console.log('Template:');
-	console.log(Template.fromLGG(literals));
+	const template = Template.fromString('*a person* likes to give john a present of *a present*.');
+	console.log(template.withVariable('john'));
 }
 
 

@@ -1,3 +1,4 @@
+import { updateDecorator } from 'typescript';
 import { WorkDoneProgressBegin } from 'vscode-languageserver';
 import { deepCopy, intersectionOf, removeBlanks, removeFirst, regexSanitise } from './utils';
 
@@ -44,7 +45,8 @@ export class Template {
 		'an E'
 	];
 
-	public static fromString(templateString: string): Template {
+	public static fromString(templateString: string, useExistingVariableNames = true): Template {
+
 		templateString = templateString.replace('.', '');
 		const argumentBlockRegex = /((?:\*)an? (?:[\w|\s]+)\*)/g;
 		const elementStrings = templateString.split(argumentBlockRegex);
@@ -52,14 +54,18 @@ export class Template {
 		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
 		let variableIdx = 0;
 		const elements: TemplateElement[] = elementStrings
-		.map(el => el.trim())
-		.filter(el => el.length > 0)
-		.map(el => {
-			const argName = el.match(argumentNameRegex);
-			if (argName !== null) 
-				return new TemplateVariable(Template._variableNames[variableIdx++]);
-			
-			return new PredicateWord(el);
+		.map(elString => elString.trim())
+		.filter(elString => elString.length > 0)
+		.map(elString => {
+			const varName = elString.match(argumentNameRegex);
+			if (varName !== null) {
+				if (useExistingVariableNames)
+					return new TemplateVariable(elString);
+				else 
+					return new TemplateVariable(Template._variableNames[variableIdx++]);
+			}
+				
+			return new PredicateWord(elString);
 		});
 
 		return new Template(elements);
@@ -173,6 +179,34 @@ export class Template {
 		.flatMap(word => word.split(' '));
 
 		return Template.termsFromLiteral(literal, predicateWords);
+	}
+	
+
+	public withVariable(variable: string, variableName: string | undefined = undefined): Template {
+		if (variableName === undefined)
+			variableName = `*a ${variable}*`;
+		
+		const variableRegex = new RegExp(`(${regexSanitise(variable)})`); // keeps the `variable` delimeter
+		const newElements: TemplateElement[] = [];
+
+		for (const el of this.elements) {
+			if (el.type === TemplateElementKind.Word && variableRegex.test(variable)) {
+				const elementStrings = el.word.split(variableRegex);
+				for (let elString of elementStrings) {
+					elString = elString.trim();
+					if (elString.length > 0) {
+						if (elString === variable)
+							newElements.push(new TemplateVariable(variableName));
+						else 
+							newElements.push(new PredicateWord(elString));
+					}
+				}
+			} 
+			else 
+				newElements.push(el);
+		}
+
+		return new Template(newElements);
 	}
 
 	// the 	big mother 		of the person is 	unknown
