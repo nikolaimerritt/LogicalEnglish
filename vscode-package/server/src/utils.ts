@@ -48,6 +48,7 @@ export function templatesInDocument(text: string): Template[] {
 	return templates;
 }
 
+
 export function clausesInDocument(text: string): ContentRange<string>[] {
 	const clauseRange = sectionRange('knowledge base', text);
 
@@ -92,29 +93,26 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 }
 
 
-export function literalsInDocument(text: string): ContentRange<string>[] {
-	const knowledgeBase = sectionRange('knowledge base', text);
-	if (knowledgeBase === undefined)
-		return [];
-
+export function literalsInClause(clause: ContentRange<string>): ContentRange<string>[] {
 	const connectives = /\b(?:if|and|or|it is the case that|it is not the case that)\b/g;
-	const lines = text.split('\n');
-
+	const lines = clause.content.split('\n');
 	const literalsWithRanges: ContentRange<string>[] = [];
-	for (let l = knowledgeBase.start.line; l <= Math.min(knowledgeBase.end.line, lines.length - 1); l++) {
-		const literalsInLine = lines[l].split(connectives)
+
+	for (let lineOffset = 0; lineOffset < lines.length; lineOffset++) {
+		const lineNumber = clause.range.start.line + lineOffset;
+		const literalsInLine = lines[lineOffset].split(connectives)
 		.map(lit => lit.trim())
 		.filter(lit => lit.length > 0);
 
 		literalsInLine.forEach(lit => {
 			const range: Range = {
 				start: {
-					line: l,
-					character: lines[l].indexOf(lit)
+					line: lineNumber,
+					character: lines[lineOffset].indexOf(lit)
 				},
 				end: {
-					line: l,
-					character: lines[l].indexOf(lit) + lit.length
+					line: lineNumber,
+					character: lines[lineOffset].indexOf(lit) + lit.length
 				}
 			};
 			literalsWithRanges.push({
@@ -126,6 +124,49 @@ export function literalsInDocument(text: string): ContentRange<string>[] {
 
 	return literalsWithRanges;
 }
+
+
+// export function literalsInDocument(text: string): ContentRange<string>[] {
+// 	const knowledgeBase = sectionRange('knowledge base', text);
+// 	if (knowledgeBase === undefined)
+// 		return [];
+
+// 	const connectives = /\b(?:if|and|or|it is the case that|it is not the case that)\b/g;
+// 	const lines = text.split('\n');
+
+// 	const literalsWithRanges: ContentRange<string>[] = [];
+// 	for (let l = knowledgeBase.start.line; l <= Math.min(knowledgeBase.end.line, lines.length - 1); l++) {
+// 		const literalsInLine = lines[l].split(connectives)
+// 		.map(lit => lit.trim())
+// 		.filter(lit => lit.length > 0);
+
+// 		literalsInLine.forEach(lit => {
+// 			const range: Range = {
+// 				start: {
+// 					line: l,
+// 					character: lines[l].indexOf(lit)
+// 				},
+// 				end: {
+// 					line: l,
+// 					character: lines[l].indexOf(lit) + lit.length
+// 				}
+// 			};
+// 			literalsWithRanges.push({
+// 				content: lit,
+// 				range
+// 			});
+// 		});
+// 	}
+
+// 	return literalsWithRanges;
+// }
+
+
+export function literalsInDocument(text: string): ContentRange<string>[] {
+	return clausesInDocument(text)
+	.flatMap(clause => literalsInClause(clause));
+}
+
 
 export function intersectionOf<T>(lists: T[][]): T[] {
 	const allElements: T[] = [];

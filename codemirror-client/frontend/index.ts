@@ -17,14 +17,14 @@ import logicalEnglishHighlighting from './logical-english.tmLanguage.json';
 // import { IRawGrammar } from 'monaco-textmate';
 import { ILspOptions } from '../src';
 
-// let sampleJs = `
-// let values = [15, 2, 7, 9, 17, 99, 50, 3];
-// let total = 0;
+const sampleJs = `
+let values = [15, 2, 7, 9, 17, 99, 50, 3];
+let total = 0;
 
-// for (let i; i < values.length; i++) {
-//   total += values[i];
-// }
-// `;
+for (let i; i < values.length; i++) {
+  total += values[i];
+}
+`;
 
 const sampleLogicalEnglish = `the templates are:
 *a person* eats *an object*.
@@ -80,13 +80,13 @@ stanley doesnt like the state of america.
 //   gutters: ['CodeMirror-lsp'],
 // });
 
-// let jsEditor = CodeMirror(document.querySelector('.js'), {
-//   theme: 'idea',
-//   lineNumbers: true,
-//   mode: 'javascript',
-//   value: sampleJs,
-//   gutters: ['CodeMirror-lsp'],
-// });
+const jsEditor = CodeMirror(document.querySelector('.js'), {
+  theme: 'idea',
+  lineNumbers: true,
+  mode: 'javascript',
+  value: sampleJs,
+  gutters: ['CodeMirror-lsp'],
+});
 
 const logicalEnglishEditor = CodeMirror(document.querySelector('.le'), {
     theme: 'idea',
@@ -117,6 +117,13 @@ const logicalEnglishEditor = CodeMirror(document.querySelector('.le'), {
 //   documentUri: (window as any).lspOptions.jsPath,
 //   documentText: () => jsEditor.getValue(),
 // };
+const jsConfig: ILspOptions = {
+    serverUri: 'ws://localhost:3000/javascript',
+    languageId: 'javascript',
+    rootUri: (window as any).lspOptions.rootPath,
+    documentUri: (window as any).lspOptions.jsPath,
+    documentText: () => jsEditor.getValue()
+}
 
 // let css = {
 //   serverUri: 'ws://localhost:3000/css',
@@ -142,10 +149,11 @@ const logicalEnglishConfig: ILspOptions = {
 // let cssAdapter = new CodeMirrorAdapter(cssConnection, {
 //   quickSuggestionsDelay: 100,
 // }, cssEditor);
-// let jsConnection = new LspWsConnection(js).connect(new WebSocket(js.serverUri));
-// let jsAdapter = new CodeMirrorAdapter(jsConnection, {
-//   quickSuggestionsDelay: 50,
-// }, jsEditor);
+
+const jsConn = new LspWsConnection(jsConfig).connect(new WebSocket(jsConfig.serverUri));
+const jsAdapter = new CodeMirrorAdapter(jsConn, {
+  quickSuggestionsDelay: 50,
+}, jsEditor);
 
 
 const logicalEnglishConn = new LspWsConnection(logicalEnglishConfig).connect(new WebSocket(logicalEnglishConfig.serverUri));

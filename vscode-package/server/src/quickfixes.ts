@@ -2,7 +2,7 @@ import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Posit
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
 import { literalHasNoTemplateMessage } from './diagnostics';
-import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments } from './utils';
+import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments, ContentRange, literalsInClause } from './utils';
 
 import { debugOnStart } from './diagnostics';
 
@@ -22,14 +22,9 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 function literalWithNoTemplateFixes(text: string, params: CodeActionParams): CodeAction[] {
 	const templates = templatesInDocument(text);
 	const literalsWithNoTemplate = literalsInDocument(text)
-	.map(textRange => textRange.content)
-	.filter(literal => !templates.some(template => template.matchesLiteral(literal)));
+	.filter(literal => !templates.some(template => template.matchesLiteral(literal.content)));
 
 	if (literalsWithNoTemplate.length < 2)
-		return [];
-	
-	const lggTemplate = Template.fromLGG(literalsWithNoTemplate);
-	if (lggTemplate === undefined)
 		return [];
 	
 	const templatesRange = sectionRange('templates', text);
@@ -40,6 +35,20 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 		start: templatesRange.end,
 		end: templatesRange.end
 	};
+
+	let generatedTemplate = Template.fromLGG(literalsWithNoTemplate.map(lit => lit.content));
+	if (generatedTemplate === undefined)
+		return [];
+
+	
+	// trying to add every variable in the clauses containing the literals, to the template
+	for (const literal of literalsWithNoTemplate) {
+		const clause = clauseContainingLiteral(text, literal);
+		if (clause !== undefined) {
+			for (const term of termsInClause(templates, clause))
+				generatedTemplate = generatedTemplate.withVariable(term);
+		}
+	}
 	
 	const actions: CodeAction[] = [];
 	params.context.diagnostics.forEach(diag => {
@@ -52,7 +61,8 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 					changes: {
 						[params.textDocument.uri]: [{
 							range: endOfTemplates,
-							newText: `${lggTemplate.toString()} \n`
+							newText: `${generatedTemplate!.toString()} \n` 
+							// why is TypeScript saying that generatedTemplate could be undefined??
 						}]
 					}
 				}
@@ -61,4 +71,25 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 	});
 
 	return actions;
+}
+
+
+function clauseContainingLiteral(document: string, literal: ContentRange<string>): ContentRange<string> | undefined {
+	return clausesInDocument(document)
+	.find(clause => 
+			clause.range.start.line <= literal.range.start.line 
+			&& clause.range.end.line >= literal.range.end.line
+	);
+}
+
+
+function termsInClause(templates: Template[], clause: ContentRange<string>): string[] {
+	const terms: string[] = [];
+	for (const { content: literal } of literalsInClause(clause)) {
+		const template = templates.find(t => t.matchesLiteral(literal));
+		if (template !== undefined) 
+			terms.concat(template.termsFromLiteral(literal));
+	}
+
+	return terms;
 }
