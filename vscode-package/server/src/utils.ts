@@ -57,7 +57,7 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 	
 	const lines = text.split('\n');
 	const clauses: ContentRange<string>[] = [];
-	const clauseStartPattern = /^[^\s].*$/;
+	const clauseStartPattern = /^.*\w+.*$/;
 	const clauseEndPattern = /^.*\.$/;
 
 	let clauseStart = undefined;
