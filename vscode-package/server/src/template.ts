@@ -82,7 +82,8 @@ export class Template {
 	}
 
 	public static fromLGG(literals: string[]): Template | undefined {
-		const wordsFromEachLiteral = literals.map(literal => literal.split(/\s+/g));
+		
+		const wordsFromEachLiteral = literals.map(literal => literal.replace('.', '').split(/\s+/g));
 		const predicateWords = Template.predicateWordsFromLiterals(wordsFromEachLiteral);
 		
 		// assumes that literals all conform to same template

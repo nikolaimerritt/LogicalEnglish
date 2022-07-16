@@ -105,6 +105,7 @@ export function literalsInClause(clause: ContentRange<string>): ContentRange<str
 		.filter(lit => lit.length > 0);
 
 		literalsInLine.forEach(lit => {
+			lit = sanitiseLiteral(lit);
 			const range: Range = {
 				start: {
 					line: lineNumber,
@@ -207,6 +208,11 @@ export function deepCopy<T>(object: T): T {
 // taken from https://stackoverflow.com/questions/6300183/sanitize-string-of-regex-characters-before-regexp-build
 export function regexSanitise(pattern: string): string {
 	return pattern.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
+}
+
+
+export function sanitiseLiteral(literal: string): string {
+	return literal.replace('.', '').trim();
 }
 
 
