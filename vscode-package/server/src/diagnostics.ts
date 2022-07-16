@@ -6,7 +6,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments } from './utils';
 import { Template } from './template';
-import { cpSync } from 'fs';
+import { typeTree } from './types';
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -20,7 +20,7 @@ export const literalHasNoTemplateMessage = "Literal has no template.";
 export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned connectives.';
 
 export function textDocumentDiagnostics(maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
-	debugOnStart();
+	// debugOnStart();
 	const text = ignoreComments(document.getText());
 
 	return [
@@ -32,8 +32,8 @@ export function textDocumentDiagnostics(maxNumberOfProblems: number, document: T
 
 
 export function debugOnStart() {
-	const template = Template.fromString('*a person* likes to give john a present of *a present*.');
-	console.log(template.withVariable('john'));
+	console.log('Type Tree:');
+	console.log(typeTree.toString());
 }
 
 

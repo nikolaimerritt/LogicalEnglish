@@ -1,6 +1,5 @@
-import { updateDecorator } from 'typescript';
-import { WorkDoneProgressBegin } from 'vscode-languageserver';
-import { deepCopy, intersectionOf, removeBlanks, removeFirst, regexSanitise } from './utils';
+import { deepCopy, removeBlanks, removeFirst, regexSanitise } from './utils';
+import { Type, typeTree } from './types';
 
 export enum TemplateElementKind {
 	Variable,
@@ -8,17 +7,18 @@ export enum TemplateElementKind {
 }
 
 export class TemplateVariable {
-	public readonly name: string;
-	public readonly type = TemplateElementKind.Variable;
+	public readonly type: Type;
+	public readonly kind = TemplateElementKind.Variable;
 
 	constructor(_name: string) {
-		this.name = _name;
+		console.log(`Creating a variable with name ${_name}`);
+		this.type = typeTree.getType(_name);
 	}
 }
 
 export class PredicateWord {
 	public readonly word: string;
-	public readonly type = TemplateElementKind.Word;
+	public readonly kind = TemplateElementKind.Word;
 
 	constructor(_word: string) {
 		this.word = _word;
@@ -44,24 +44,41 @@ export class Template {
 		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
 		let variableIdx = 0;
 
-		// TODO: make less ugly
-		const elements: TemplateElement[] = elementStrings
-		.map(elString => elString.trim())
-		.filter(elString => elString.length > 0)
-		.map(elString => {
-			const varName = elString.match(argumentNameRegex);
-			if (varName !== null) {
-				if (useExistingVariableNames)
-					return new TemplateVariable(elString);
-				else 
-					return new TemplateVariable(Template.variableName(variableIdx++));
+		const elements: TemplateElement[] = [];
+		for (let elString of elementStrings) {
+			elString = elString.trim();
+			if (elString.length > 0) {
+				const varName = elString.match(argumentNameRegex);
+				if (varName === null) 
+					elements.push(new PredicateWord(elString));
+
+				else {
+					if (useExistingVariableNames)
+						elements.push(new TemplateVariable(elString.replace(/\*/g, '')));
+					else 
+						elements.push(new TemplateVariable(Template.variableName(variableIdx++)));
+				} 
 			}
+		}
+
+		// const elements: TemplateElement[] = elementStrings
+		// .map(elString => elString.trim())
+		// .filter(elString => elString.length > 0)
+		// .map(elString => {
+		// 	const varName = elString.match(argumentNameRegex);
+		// 	if (varName !== null) {
+		// 		if (useExistingVariableNames)
+		// 			return new TemplateVariable(elString);
+		// 		else 
+		// 			return new TemplateVariable(Template.variableName(variableIdx++));
+		// 	}
 				
-			return new PredicateWord(elString);
-		});
+		// 	return new PredicateWord(elString);
+		// });
 
 		return new Template(elements);
 	}
+
 
 	public static fromLiteral(literal: string, terms: string[]): Template {
 		literal = literal.replace('.', '');
@@ -126,11 +143,11 @@ export class Template {
 			return false;
 		
 		for (let i = 0; i < this.elements.length; i++) {
-			if (this.elements[i].type !== other.elements[i].type)
+			if (this.elements[i].kind !== other.elements[i].kind)
 				return false;
 			
-			if (this.elements[i].type === TemplateElementKind.Word 
-					&& other.elements[i].type === TemplateElementKind.Word
+			if (this.elements[i].kind === TemplateElementKind.Word 
+					&& other.elements[i].kind === TemplateElementKind.Word
 					&& (this.elements[i] as PredicateWord).word !== (other.elements[i] as PredicateWord).word)
 				return false;
 		}
@@ -141,8 +158,8 @@ export class Template {
 	public toString(): string {
 		return this.elements
 		.map(el => {
-			if (el.type === TemplateElementKind.Variable)
-				return `*${el.name}*`;
+			if (el.kind === TemplateElementKind.Variable)
+				return `*${el.type.name}*`;
 			
 			return el.word;
 		})
@@ -153,9 +170,9 @@ export class Template {
 		let snippet = '';
 		let placeholderCount = 0;
 		this.elements.forEach(el => {
-			if (el.type === TemplateElementKind.Variable) {
+			if (el.kind === TemplateElementKind.Variable) {
 				placeholderCount++;
-				snippet += '${' + placeholderCount + ':' + el.name + '}';
+				snippet += '${' + placeholderCount + ':' + el.type.name + '}';
 			} else 
 				snippet += el.word;
 			
@@ -167,7 +184,7 @@ export class Template {
 	public termsFromLiteral(literal: string): string[] {
 		literal = literal.replace('.', '');
 		const predicateWords = this.elements
-		.filter(el => el.type === TemplateElementKind.Word)
+		.filter(el => el.kind === TemplateElementKind.Word)
 		.map(w => (w as PredicateWord).word)
 		.flatMap(word => word.split(' '));
 
@@ -183,7 +200,7 @@ export class Template {
 		const newElements: TemplateElement[] = [];
 
 		for (const el of this.elements) {
-			if (el.type === TemplateElementKind.Word && variableRegex.test(variable)) {
+			if (el.kind === TemplateElementKind.Word && variableRegex.test(variable)) {
 				const elementStrings = el.word.split(variableRegex);
 				for (let elString of elementStrings) {
 					elString = elString.trim();
@@ -339,9 +356,9 @@ export class Template {
 		const terms = this.termsFromIncompleteLiteral(literal);
 		const templateElements: TemplateElement[] = [];
 		this.elements.forEach(element => {
-			if (element.type === TemplateElementKind.Word) 
+			if (element.kind === TemplateElementKind.Word) 
 				templateElements.push(element);
-			else if (element.type === TemplateElementKind.Variable) {
+			else if (element.kind === TemplateElementKind.Variable) {
 				if (terms.length > 0) {
 					templateElements.push(new PredicateWord(terms[0]));
 					terms.shift(); // remove first term
@@ -356,7 +373,7 @@ export class Template {
 
 	private predicateWords(): PredicateWord[] {
 		return this.elements
-		.filter(el => el.type === TemplateElementKind.Word)
+		.filter(el => el.kind === TemplateElementKind.Word)
 		.map(el => el as PredicateWord);
 	} 
 
