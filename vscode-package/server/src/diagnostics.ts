@@ -4,9 +4,9 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments } from './utils';
+import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments, literalsInClause, termsInClause } from './utils';
 import { Template } from './template';
-import { typeTree } from './types';
+import { typeTree } from './type';
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -25,7 +25,8 @@ export function textDocumentDiagnostics(maxNumberOfProblems: number, document: T
 
 	return [
 		... literalHasNoTemplateDiags(text),
-		...misalignedConnectivesDiags(text)
+		...misalignedConnectivesDiags(text),
+		...typeMismatchDiags(text)
 	]
 	.slice(0, maxNumberOfProblems);
 }
@@ -64,6 +65,36 @@ function misalignedConnectivesDiags(text: string): Diagnostic[] {
 				range,
 				message: clauseHasMisalignedConnectivesMessage
 			});
+		}
+	}
+
+	return diagnostics;
+}
+
+function typeMismatchDiags(text: string): Diagnostic[] {
+	const diagnostics: Diagnostic[] = [];
+	const templates = templatesInDocument(text);
+
+	for (const clause of clausesInDocument(text)) {
+		const terms = termsInClause(templates, clause);
+		for (let i = 0; i < terms.length; i++) {
+			for (let j = i + 1; j < terms.length; j++) {
+				if (terms[i].content.name === terms[j].content.name 
+						&& terms[i].content.type !== terms[j].content.type) {
+					
+					const message = `Type mismatch: type '${terms[i].content.type.name}' versus type '${terms[j].content.type.name}'`;
+					diagnostics.push({
+						severity: DiagnosticSeverity.Warning,
+						range: terms[i].range,
+						message
+					});
+					diagnostics.push({
+						severity: DiagnosticSeverity.Warning,
+						range: terms[j].range,
+						message
+					});
+				}
+			}
 		}
 	}
 

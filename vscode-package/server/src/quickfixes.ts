@@ -5,6 +5,7 @@ import { literalHasNoTemplateMessage } from './diagnostics';
 import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments, ContentRange, literalsInClause } from './utils';
 
 import { debugOnStart } from './diagnostics';
+import { Term } from './term';
 
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
@@ -45,7 +46,7 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 	for (const literal of literalsWithNoTemplate) {
 		const clause = clauseContainingLiteral(text, literal);
 		if (clause !== undefined) {
-			for (const term of termsInClause(templates, clause))
+			for (const { name: term } of termsInClause(templates, clause))
 				generatedTemplate = generatedTemplate.withVariable(term);
 		}
 	}
@@ -83,8 +84,8 @@ function clauseContainingLiteral(document: string, literal: ContentRange<string>
 }
 
 
-function termsInClause(templates: Template[], clause: ContentRange<string>): string[] {
-	let terms: string[] = [];
+function termsInClause(templates: Template[], clause: ContentRange<string>): Term[] {
+	let terms: Term[] = [];
 	const literals = literalsInClause(clause);
 
 	for (const { content: literal } of literals) {

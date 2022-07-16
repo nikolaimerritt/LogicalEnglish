@@ -25,7 +25,8 @@ export class TypeTree {
 	}
 
 
-	public getType(name: string): Type { // creates if does not exist
+	// creates if does not exist
+	public getType(name: string): Type { 
 		const maybeType = this.find(t => t.name === name);
 		if (maybeType !== undefined)
 			return maybeType;
@@ -34,6 +35,7 @@ export class TypeTree {
 		this.root.makeSubtype(newType);
 		return newType;
 	}
+	
 
 	public toString(): string {
 		return this.buildStringRepresentation('');
@@ -61,8 +63,6 @@ export class TypeTree {
 
 		return undefined;
 	}
-
-
 }
 
 

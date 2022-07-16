@@ -48,7 +48,7 @@ function termInLiteralTokens(text: string): TokenDetails[] {
             const terms = template.termsFromLiteral(literal);
             
             let char = range.start.character;
-            for (const term of terms) {
+            for (const { name: term } of terms) {
                 const termStart = literal.indexOf(term);
                 char += termStart;
                 tokens.push({

@@ -2,6 +2,7 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position, Range } from 'vscode-languageserver';
 import { Template } from './template';
+import { Term } from './term';
 
 export type ContentRange<T> = {
 	content: T,
@@ -127,45 +128,41 @@ export function literalsInClause(clause: ContentRange<string>): ContentRange<str
 }
 
 
-// export function literalsInDocument(text: string): ContentRange<string>[] {
-// 	const knowledgeBase = sectionRange('knowledge base', text);
-// 	if (knowledgeBase === undefined)
-// 		return [];
-
-// 	const connectives = /\b(?:if|and|or|it is the case that|it is not the case that)\b/g;
-// 	const lines = text.split('\n');
-
-// 	const literalsWithRanges: ContentRange<string>[] = [];
-// 	for (let l = knowledgeBase.start.line; l <= Math.min(knowledgeBase.end.line, lines.length - 1); l++) {
-// 		const literalsInLine = lines[l].split(connectives)
-// 		.map(lit => lit.trim())
-// 		.filter(lit => lit.length > 0);
-
-// 		literalsInLine.forEach(lit => {
-// 			const range: Range = {
-// 				start: {
-// 					line: l,
-// 					character: lines[l].indexOf(lit)
-// 				},
-// 				end: {
-// 					line: l,
-// 					character: lines[l].indexOf(lit) + lit.length
-// 				}
-// 			};
-// 			literalsWithRanges.push({
-// 				content: lit,
-// 				range
-// 			});
-// 		});
-// 	}
-
-// 	return literalsWithRanges;
-// }
-
 
 export function literalsInDocument(text: string): ContentRange<string>[] {
 	return clausesInDocument(text)
 	.flatMap(clause => literalsInClause(clause));
+}
+
+
+export function termsInClause(templates: Template[], clause: ContentRange<string>): ContentRange<Term>[] {
+	const termRanges: ContentRange<Term>[] = [];
+
+	for (const { content: literal, range: literalRange } of literalsInClause(clause)) {
+		const template = templates.find(t => t.matchesLiteral(literal));
+		if (template !== undefined) {
+			let termIdx = 0;
+			for (const term of template.termsFromLiteral(literal)) {
+				termIdx = literal.indexOf(term.name, termIdx);
+				termRanges.push({
+					content: term,
+					range: {
+						start: { 
+							line: literalRange.start.line, 
+							character: literalRange.start.character + termIdx 
+						},
+						end: { 
+							line: literalRange.start.line, 
+							character: literalRange.start.character + termIdx + term.name.length 
+						}
+					}
+				});
+				termIdx += term.name.length;
+			}
+		}
+	}
+
+	return termRanges;
 }
 
 
