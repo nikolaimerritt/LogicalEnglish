@@ -34,16 +34,6 @@ export class Template {
 		this.elements = _elements;
 	}
 
-	private static readonly _variableNames = [
-		'an X',
-		'a Y',
-		'a Z',
-		'an A',
-		'a B',
-		'a C',
-		'a D',
-		'an E'
-	];
 
 	public static fromString(templateString: string, useExistingVariableNames = true): Template {
 
@@ -53,6 +43,8 @@ export class Template {
 
 		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
 		let variableIdx = 0;
+
+		// TODO: make less ugly
 		const elements: TemplateElement[] = elementStrings
 		.map(elString => elString.trim())
 		.filter(elString => elString.length > 0)
@@ -62,7 +54,7 @@ export class Template {
 				if (useExistingVariableNames)
 					return new TemplateVariable(elString);
 				else 
-					return new TemplateVariable(Template._variableNames[variableIdx++]);
+					return new TemplateVariable(Template.variableName(variableIdx++));
 			}
 				
 			return new PredicateWord(elString);
@@ -82,7 +74,7 @@ export class Template {
 		const elements: TemplateElement[] = elementStrings
 		.map(el => {
 			if (terms.includes(el)) 
-				return new TemplateVariable(Template._variableNames[variableIdx++]);
+				return new TemplateVariable(Template.variableName(variableIdx++));
 			return new PredicateWord(el);
 		});
 
@@ -184,7 +176,7 @@ export class Template {
 
 	public withVariable(variable: string, variableName: string | undefined = undefined): Template {
 		if (variableName === undefined)
-			variableName = `*a ${variable}*`;
+			variableName = `a ${variable}`;
 		
 		const variableRegex = new RegExp(`(${regexSanitise(variable)})`); // keeps the `variable` delimeter
 		const newElements: TemplateElement[] = [];
@@ -207,6 +199,22 @@ export class Template {
 		}
 
 		return new Template(newElements);
+	}
+
+	private static variableName(index: number): string {
+		const variableNames = [
+			'an X',
+			'a Y',
+			'a Z',
+		];
+
+
+		if (index >= variableNames.length) {
+			const subscript = 1 + index - variableNames.length;
+			return `an A${subscript}`;
+		}
+
+		return variableNames[index];
 	}
 
 	// the 	big mother 		of the person is 	unknown
@@ -350,5 +358,7 @@ export class Template {
 		.filter(el => el.type === TemplateElementKind.Word)
 		.map(el => el as PredicateWord);
 	} 
+
+
 }
 

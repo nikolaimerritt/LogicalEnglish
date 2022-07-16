@@ -61,7 +61,7 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 					changes: {
 						[params.textDocument.uri]: [{
 							range: endOfTemplates,
-							newText: `${generatedTemplate!.toString()} \n` 
+							newText: `${generatedTemplate!.toString()}.\n` 
 							// why is TypeScript saying that generatedTemplate could be undefined??
 						}]
 					}
@@ -84,11 +84,13 @@ function clauseContainingLiteral(document: string, literal: ContentRange<string>
 
 
 function termsInClause(templates: Template[], clause: ContentRange<string>): string[] {
-	const terms: string[] = [];
-	for (const { content: literal } of literalsInClause(clause)) {
+	let terms: string[] = [];
+	const literals = literalsInClause(clause);
+
+	for (const { content: literal } of literals) {
 		const template = templates.find(t => t.matchesLiteral(literal));
 		if (template !== undefined) 
-			terms.concat(template.termsFromLiteral(literal));
+			terms = terms.concat(template.termsFromLiteral(literal));
 	}
 
 	return terms;

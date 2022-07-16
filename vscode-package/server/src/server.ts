@@ -95,11 +95,11 @@ connection.onInitialized(() => {
 		// Register for all configuration changes.
 		connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
-	if (hasWorkspaceFolderCapability) {
-		connection.workspace.onDidChangeWorkspaceFolders(_event => {
-			connection.console.log('Workspace folder change event received.');
-		});
-	}
+	// if (hasWorkspaceFolderCapability) {
+	// 	connection.workspace.onDidChangeWorkspaceFolders(_event => {
+	// 		connection.console.log('Workspace folder change event received.');
+	// 	});
+	// }
 });
 
 // The example settings
@@ -178,10 +178,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
-connection.onDidChangeWatchedFiles(_change => {
-	// Monitored files have change in VSCode
-	connection.console.log('We received an file change event');
-});
+// connection.onDidChangeWatchedFiles(_change => {
+// 	// Monitored files have change in VSCode
+// 	connection.console.log('We received an file change event');
+// });
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(params => {
@@ -194,8 +194,6 @@ connection.onCompletion(params => {
 });
 
 connection.languages.semanticTokens.on((params: SemanticTokensParams) => {
-	console.log('Server generating semantic tokens');
-
 	const document = documents.get(params.textDocument.uri);
 	if (document === undefined)
 		return { data: [] };
