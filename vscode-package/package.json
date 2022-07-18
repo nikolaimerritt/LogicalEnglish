@@ -1,16 +1,17 @@
 {
 	"name": "logical-english-vscode",
-	"description": "A language server example",
-	"author": "Microsoft Corporation",
+	"description": "A language plugin for the logical programming language Logical English.",
+	"author": "Nikolai Merritt",
 	"license": "MIT",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/nikolaimerritt/LogicalEnglish"
 	},
-	"publisher": "vscode-samples",
+	"publisher": "nikolaimerritt",
 	"categories": [
-		"Programming Languages"
+		"Programming Languages",
+		"Linters"
 	],
 	"keywords": [
 		"le",
