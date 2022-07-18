@@ -1,0 +1,14 @@
+%type checking: on
+%help
+the type hierarchy is:
+    a person    
+        an employee
+        a caretaker
+
+the templates are:
+    *a person* bosses around *a caretaker*.
+    *a caretaker* cleans up *a food*.
+
+the knowledge base Test includes:
+    mike bosses around jack.
+    jack cleans up mike.

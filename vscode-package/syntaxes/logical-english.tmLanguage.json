@@ -12,6 +12,9 @@
       "include": "#comments"
     },
     {
+      "include": "#type-checking-enabled-comment"
+    },
+    {
       "include": "#multiline-comments"
     },
     {
@@ -45,9 +48,13 @@
         }
       ]
     },
+    "type-checking-enabled-comment": {
+      "match": "#hello",
+      "name": "keyword.control.directive.logical-english"
+    },
     "comments": {
       "match": "(%)(.*)",
-      "name": "comment.line.percentage.logical-english",
+      "name": "comment.line.help.logical-english",
       "captures": {
         "1": {
           "name": "punctuation.definition.comment.logical-english"

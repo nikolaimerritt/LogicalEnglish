@@ -4,6 +4,7 @@ patterns:
 - include: "#keywords"
 - include: "#strings"
 - include: "#comments"
+- include: "#type-checking-enabled-comment"
 - include: "#multiline-comments"
 - include: "#type-hierarchy-headers"
 - include: "#template-headers"
@@ -21,7 +22,7 @@ repository:
 
   comments:
     match: '(%)(.*)'
-    name: comment.line.percentage.logical-english
+    name: comment.line.help.logical-english
     captures:
       '1': 
         name: punctuation.definition.comment.logical-english

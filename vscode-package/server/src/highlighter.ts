@@ -13,8 +13,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ignoreComments, literalsInDocument, templatesInDocument } from './utils';
 
 
-export const tokenTypes = ['variable', 'class', 'interface'];
-export const tokenModifiers = ['declaration', 'implementation'];
+export const tokenTypes = ['variable', 'class', 'interface', 'keyword'];
+export const tokenModifiers = ['declaration', 'implementation', 'control'];
 
 interface TokenDetails {
     line: number,
@@ -25,14 +25,19 @@ interface TokenDetails {
 }
 
 export function semanticTokens(document: TextDocument): SemanticTokens {
-    const text = ignoreComments(document.getText());
-    const builder = new SemanticTokensBuilder();
+    const tokens: TokenDetails[] = [];
+    const textWithComments = document.getText();
+    tokens.push(...specialCommentTokens(textWithComments));
 
-    termInLiteralTokens(text).forEach(token => {
+    const text = ignoreComments(document.getText());
+    tokens.push(...termInLiteralTokens(text));
+
+    const builder = new SemanticTokensBuilder();
+    for (const token of tokens) {
         const { line, char, length, tokenTypeName, tokenModifierName } = token;
         builder.push(line, char, length, encodeTokenType(tokenTypeName), encodeTokenModifier(tokenModifierName));
-    });
-
+    }
+        
     return builder.build();
 }
 
@@ -60,6 +65,29 @@ function termInLiteralTokens(text: string): TokenDetails[] {
                 });
                 literal = literal.slice(termStart + term.length, undefined);
                 char += term.length;
+            }
+        }
+    }
+
+    return tokens;
+}
+
+
+function specialCommentTokens(text: string): TokenDetails[] {
+    const specialCommentsRegex = /^.*(%type checking:? on)\s*$/gm;
+    const lines = text.split('\n');
+    const tokens: TokenDetails[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        for (const commentMatch of lines[i].matchAll(specialCommentsRegex)) {
+            if (commentMatch.index !== undefined && commentMatch.length >= 2) {
+                tokens.push({
+                    line: i,
+                    char: commentMatch.index,  
+                    length: commentMatch[1].length,
+                    tokenTypeName: 'keyword',
+                    tokenModifierName: 'control'
+                });
             }
         }
     }

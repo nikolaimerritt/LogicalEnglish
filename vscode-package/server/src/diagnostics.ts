@@ -28,17 +28,24 @@ export const globalSettings: ExampleSettings = {
 export const literalHasNoTemplateMessage = "Literal has no template.";
 export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned connectives.';
 
-export function textDocumentDiagnostics(maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
+export function textDocumentDiagnostics(document: TextDocument): Diagnostic[] {	
 	// debugOnStart();
-	const text = ignoreComments(document.getText());
+	const typeCheckingRegex = /^.*(%type checking:? on)\s*$/gm;
+	let text = document.getText();
+	const typeChecking = typeCheckingRegex.test(text);
+	text = ignoreComments(text);
+
 	const typeTree = typeTreeInDocument(text);
 
-	return [
-		... literalHasNoTemplateDiags(text, typeTree),
-		...misalignedConnectivesDiags(text),
-		...typeMismatchDiags(text, typeTree)
-	]
-	.slice(0, maxNumberOfProblems);
+	const diags = [];
+	diags.push(... literalHasNoTemplateDiags(text, typeTree));
+	diags.push(...misalignedConnectivesDiags(text));
+
+
+	if (typeChecking) 
+		diags.push(...typeMismatchDiags(text, typeTree));
+
+	return diags;
 }
 
 
