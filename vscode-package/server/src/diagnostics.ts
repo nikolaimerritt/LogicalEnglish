@@ -4,9 +4,18 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments, literalsInClause, termsInClause } from './utils';
+import { 
+	templatesInDocument, 
+	literalsInDocument, 
+	clausesInDocument, 
+	ignoreComments, 
+	literalsInClause, 
+	termsInClause, 
+	sectionRange, 
+	typeTreeInDocument 
+} from './utils';
 import { Template } from './template';
-import { Type, TypeTree, typeTree } from './type';
+import { Type, TypeTree } from './type';
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -22,11 +31,12 @@ export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned conn
 export function textDocumentDiagnostics(maxNumberOfProblems: number, document: TextDocument): Diagnostic[] {	
 	// debugOnStart();
 	const text = ignoreComments(document.getText());
+	const typeTree = typeTreeInDocument(text);
 
 	return [
-		... literalHasNoTemplateDiags(text),
+		... literalHasNoTemplateDiags(text, typeTree),
 		...misalignedConnectivesDiags(text),
-		...typeMismatchDiags(text)
+		...typeMismatchDiags(text, typeTree)
 	]
 	.slice(0, maxNumberOfProblems);
 }
@@ -49,10 +59,10 @@ goat`.split('\n');
 
 
 // refactor to export function text -> literals with no template
-function literalHasNoTemplateDiags(text: string): Diagnostic[] {
+function literalHasNoTemplateDiags(text: string, typeTree: TypeTree): Diagnostic[] {
 	const templates = templatesInDocument(text);
 
-	const diagnostics: Diagnostic[] = [];
+	const diagnostics: Diagnostic[] = [];	
 	for (const { content: literal, range } of literalsInDocument(text))
 		if (!templates.some(template => template.matchesLiteral(literal)))
 			diagnostics.push({
@@ -81,7 +91,7 @@ function misalignedConnectivesDiags(text: string): Diagnostic[] {
 	return diagnostics;
 }
 
-function typeMismatchDiags(text: string): Diagnostic[] {
+function typeMismatchDiags(text: string, typeTree: TypeTree): Diagnostic[] {
 	const diagnostics: Diagnostic[] = [];
 	const templates = templatesInDocument(text);
 

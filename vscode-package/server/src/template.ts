@@ -1,65 +1,80 @@
 import { deepCopy, removeBlanks, removeFirst, regexSanitise } from './utils';
-import { Type, typeTree } from './type';
+import { Type, TypeTree } from './type';
 import { Term } from './term';
 
-export enum TemplateElementKind {
-	Variable,
+export enum TokenKind {
+	Type,
 	Word
 }
 
 
-export class TemplateVariable {
-	public readonly type: Type;
-	public readonly kind = TemplateElementKind.Variable;
+// export class TemplateVariable {
+// 	public readonly type: Type;
+// 	public readonly kind = TemplateElementKind.Type;
 
-	constructor(_name: string) {
-		this.type = typeTree.getType(_name);
+// 	constructor(_name: string, typeTree: TypeTree) {
+// 		this.type = typeTree.getType(_name);
+// 	}
+// }
+
+
+export type PredicateWord = string;
+
+
+export class Token {
+	public readonly kind: TokenKind;
+	public readonly content: Type | PredicateWord;
+
+	constructor(kind: TokenKind, content: Type | PredicateWord) {
+		this.kind = kind;
+		this.content = content;
+	}
+
+	public static fromType(type: Type): Token {
+		return new Token(TokenKind.Type, type);
+	}
+
+	public static fromWord(word: PredicateWord): Token {
+		return new Token(TokenKind.Word, word);
 	}
 }
-
-
-export class PredicateWord {
-	public readonly word: string;
-	public readonly kind = TemplateElementKind.Word;
-
-	constructor(_word: string) {
-		this.word = _word;
-	}
-}
-
-
-export type TemplateElement = TemplateVariable | PredicateWord;
 
 
 export class Template {
-	private readonly elements: TemplateElement[];
+	private readonly elements: Token[];
+	public static readonly typeNameRegex = /\*(an? [\w|\s]+)\*/;
 
-	private constructor(_elements: TemplateElement[]) {
+	private constructor(_elements: Token[]) {
 		this.elements = _elements;
 	}
 
 
-	public static fromString(templateString: string, useExistingVariableNames = true): Template {
+	public static fromString(typeTree: TypeTree, templateString: string, useExistingVariableNames = true): Template {
 		templateString = templateString.replace('.', '');
 		const argumentBlockRegex = /((?:\*)an? (?:[\w|\s]+)\*)/g;
 		const elementStrings = templateString.split(argumentBlockRegex);
 
-		const argumentNameRegex =  /\*(an? [\w|\s]+)\*/;
 		let variableIdx = 0;
 
-		const elements: TemplateElement[] = [];
+		const elements: Token[] = [];
 		for (let elString of elementStrings) {
 			elString = elString.trim();
 			if (elString.length > 0) {
-				const varName = elString.match(argumentNameRegex);
+				const varName = elString.match(Template.typeNameRegex);
 				if (varName === null) 
-					elements.push(new PredicateWord(elString));
+					// elements.push(new PredicateWord(elString));
+					elements.push(Token.fromWord(elString));
 
 				else {
-					if (useExistingVariableNames)
-						elements.push(new TemplateVariable(elString.replace(/\*/g, '')));
-					else 
-						elements.push(new TemplateVariable(Template.variableName(variableIdx++)));
+					const typeName = useExistingVariableNames 
+						? elString.replace(/\*/g, '')
+						: Template.variableName(variableIdx++);
+
+					elements.push(Token.fromType(typeTree.getType(typeName)));
+					// if (useExistingVariableNames)
+					// 	// elements.push(new TemplateVariable(elString.replace(/\*/g, '')));
+					// else 
+					// 	elements.push(new TemplateVariable(Template.variableName(variableIdx++)));
 				} 
 			}
 		}
@@ -83,7 +98,7 @@ export class Template {
 	}
 
 
-	public static fromLiteral(literal: string, terms: Term[]): Template {
+	public static fromLiteral(typeTree: TypeTree, literal: string, terms: Term[]): Template {
 		literal = literal.replace('.', '');
 		terms = terms.filter(t => t.name.trim().length > 0);
 		const sanitisedTermNames = terms.map(t => regexSanitise(t.name));
@@ -91,17 +106,19 @@ export class Template {
 		const elementStrings = removeBlanks(literal.split(argumentBlockRegex));
 
 		let variableIdx = 0;
-		const elements: TemplateElement[] = elementStrings
+		const elements: Token[] = elementStrings
 		.map(el => {
 			if (terms.some(t => t.name === el)) 
-				return new TemplateVariable(Template.variableName(variableIdx++));
-			return new PredicateWord(el);
+				// return new TemplateVariable(Template.variableName(variableIdx++));
+				return Token.fromType(typeTree.getType(Template.variableName(variableIdx++)));
+			// return new PredicateWord(el);
+			return Token.fromWord(el);
 		});
 
 		return new Template(elements);
 	}
 
-	public static fromLGG(literals: string[]): Template | undefined {
+	public static fromLGG(typeTree: TypeTree, literals: string[]): Template | undefined {
 		
 		const wordsFromEachLiteral = literals.map(literal => literal.replace('.', '').split(/\s+/g));
 		const predicateWords = Template.predicateWordsFromLiterals(wordsFromEachLiteral);
@@ -110,7 +127,7 @@ export class Template {
 		// takes first literal, compares against predicate words to construct a template
 		const termNames = Template.termNamesFromLiteral(literals[0], predicateWords);
 		const terms = termNames.map(t => new Term(t, typeTree.getType(t)));
-		const template = Template.fromLiteral(literals[0], terms);
+		const template = Template.fromLiteral(typeTree, literals[0], terms);
 
 		// now check that all literals match the template
 		if (literals.some(literal => !template.matchesLiteral(literal)))
@@ -147,9 +164,9 @@ export class Template {
 			if (this.elements[i].kind !== other.elements[i].kind)
 				return false;
 			
-			if (this.elements[i].kind === TemplateElementKind.Word 
-					&& other.elements[i].kind === TemplateElementKind.Word
-					&& (this.elements[i] as PredicateWord).word !== (other.elements[i] as PredicateWord).word)
+			if (this.elements[i].kind === TokenKind.Word 
+					&& other.elements[i].kind === TokenKind.Word
+					&& this.elements[i].content as PredicateWord !== other.elements[i].content as PredicateWord)
 				return false;
 		}
 
@@ -159,10 +176,10 @@ export class Template {
 	public toString(): string {
 		return this.elements
 		.map(el => {
-			if (el.kind === TemplateElementKind.Variable)
-				return `*${el.type.name}*`;
+			if (el.kind === TokenKind.Type)
+				return `*${(el.content as Type).name}*`;
 			
-			return el.word;
+			return el.content as PredicateWord;
 		})
 		.join(' ');
 	}
@@ -171,11 +188,11 @@ export class Template {
 		let snippet = '';
 		let placeholderCount = 0;
 		this.elements.forEach(el => {
-			if (el.kind === TemplateElementKind.Variable) {
+			if (el.kind === TokenKind.Type) {
 				placeholderCount++;
-				snippet += '${' + placeholderCount + ':' + el.type.name + '}';
+				snippet += '${' + placeholderCount + ':' + (el.content as Type).name + '}';
 			} else 
-				snippet += el.word;
+				snippet += (el.content as PredicateWord);
 			
 			snippet += ' ';
 		});
@@ -186,8 +203,8 @@ export class Template {
 	public termsFromLiteral(literal: string): Term[] {
 		literal = literal.replace('.', '');
 		const predicateWords = this.elements
-		.filter(el => el.kind === TemplateElementKind.Word)
-		.map(w => (w as PredicateWord).word)
+		.filter(el => el.kind === TokenKind.Word)
+		.map(w => w.content as PredicateWord)
 		.flatMap(word => word.split(' '));
 
 		const termNames = Template.termNamesFromLiteral(literal, predicateWords);
@@ -195,29 +212,32 @@ export class Template {
 		const terms: Term[] = [];
 		
 		for (let i = 0; i < termNames.length; i++) 
-			terms.push(new Term(termNames[i], variables[i].type));
+			terms.push(new Term(termNames[i], variables[i]));
 		
 		return terms;
 	}
 	
 
-	public withVariable(variable: string, variableName: string | undefined = undefined): Template {
+	// TODO: refactor to take variable as term -- then no need for type tree
+	public withVariable(term: Term, variableName: string | undefined = undefined): Template {
 		if (variableName === undefined)
-			variableName = `a ${variable}`;
+			variableName = `a ${term}`;
 		
-		const variableRegex = new RegExp(`(${regexSanitise(variable)})`); // keeps the `variable` delimeter
-		const newElements: TemplateElement[] = [];
+		const variableRegex = new RegExp(`(${regexSanitise(term.name)})`); // keeps the `variable` delimeter
+		const newElements: Token[] = [];
 
 		for (const el of this.elements) {
-			if (el.kind === TemplateElementKind.Word && variableRegex.test(variable)) {
-				const elementStrings = el.word.split(variableRegex);
+			if (el.kind === TokenKind.Word && variableRegex.test(term.name)) {
+				const elementStrings = (el.content as PredicateWord).split(variableRegex);
 				for (let elString of elementStrings) {
 					elString = elString.trim();
 					if (elString.length > 0) {
-						if (elString === variable)
-							newElements.push(new TemplateVariable(variableName));
+						if (elString === term.name)
+							// newElements.push(new TemplateVariable(variableName));
+							newElements.push(Token.fromType(term.type));
 						else 
-							newElements.push(new PredicateWord(elString));
+							// newElements.push(new PredicateWord(elString));
+							newElements.push(Token.fromWord(elString));
 					}
 				}
 			} 
@@ -294,7 +314,7 @@ export class Template {
 	private termsFromIncompleteLiteral(literal: string): string[] {
 		const literalWords = literal.split(/\s+/g);
 		const predicateWords = this.predicateWords()
-		.flatMap(w => w.word.split(/\s+/g));
+		.flatMap(w => w.split(/\s+/g));
 		const terms: string[] = [];
 		let currentTerm = '';
 
@@ -322,6 +342,7 @@ export class Template {
 	}
 
 
+	// TODO: use clause to see if the types of literal's terms match with this template
 	public matchesLiteral(literal: string): boolean {
 		// given literal L, template T
 		// extract terms of L, assuming that L matches T
@@ -330,7 +351,8 @@ export class Template {
 		
 		literal = literal.replace(/\./g, '');
 		const terms = this.termsFromLiteral(literal);
-		const templateOfLiteral = Template.fromLiteral(literal, terms);
+		// TODO: ignoring types here, by supplying blank type tree!
+		const templateOfLiteral = Template.fromLiteral(new TypeTree(), literal, terms);
 		return this.hasSameSigniature(templateOfLiteral);
 	}
 
@@ -343,7 +365,7 @@ export class Template {
 		// if the literal ends with the beginning of a predicate, add 0.5
 		// normalise score by amount of predicates
 		
-		for (const { word } of this.predicateWords()) {
+		for (const word of this.predicateWords()) {
 			const wordIdx = literal.indexOf(word);
 			if (wordIdx === -1) {
 				const lastLiteralWord = literal.split(/\s+/g).at(-1);
@@ -362,36 +384,37 @@ export class Template {
 	// *an A* 		really likes 	*a B* 	with value 	*a C*
 	// fred bloggs	really likes 	apples	with val
 	// output = fred bloggs really likes apples with value *a C*
-	public templateWithMissingTerms(literal: string): Template {
+	public templateWithMissingTerms(typeTree: TypeTree, literal: string): Template {
 		const terms = this.termsFromIncompleteLiteral(literal);
-		const templateElements: TemplateElement[] = [];
-		this.elements.forEach(element => {
-			if (element.kind === TemplateElementKind.Word) 
-				templateElements.push(element);
-			else if (element.kind === TemplateElementKind.Variable) {
+		const tokens: Token[] = [];
+		this.elements.forEach(token => {
+			if (token.kind === TokenKind.Word) 
+				tokens.push(token);
+			else if (token.kind === TokenKind.Type) {
 				if (terms.length > 0) {
-					templateElements.push(new PredicateWord(terms[0]));
+					// templateElements.push(new PredicateWord(terms[0]));
+					tokens.push(Token.fromType(typeTree.getType(terms[0]))); // TODO: should this not be fromType ??
 					terms.shift(); // remove first term
 				} else 
-					templateElements.push(element);
+					tokens.push(token);
 			}
 		});
 
-		return new Template(templateElements);
+		return new Template(tokens);
 	}
 
 
 	private predicateWords(): PredicateWord[] {
 		return this.elements
-		.filter(el => el.kind === TemplateElementKind.Word)
-		.map(el => el as PredicateWord);
+		.filter(el => el.kind === TokenKind.Word)
+		.map(el => el.content as PredicateWord);
 	} 
 
 
-	public templateVariables(): TemplateVariable[] {
+	public templateVariables(): Type[] {
 		return this.elements
-		.filter(el => el.kind === TemplateElementKind.Variable)
-		.map(el => el as TemplateVariable);
+		.filter(el => el.kind === TokenKind.Type)
+		.map(el => el.content as Type);
 	}
 }
 

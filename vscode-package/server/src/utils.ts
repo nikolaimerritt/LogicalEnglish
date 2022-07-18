@@ -3,13 +3,14 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position, Range } from 'vscode-languageserver';
 import { Template } from './template';
 import { Term } from './term';
+import { TypeTree } from './type';
 
 export type ContentRange<T> = {
 	content: T,
 	range: Range
 }
 
-export function sectionRange(headerText: string, text: string): Range | undefined {
+export function sectionRange(headerText: string, text: string): ContentRange<string[]> | undefined {
 	const lines = text.split('\n');
 	
 	let start: Position | undefined = undefined;
@@ -32,26 +33,47 @@ export function sectionRange(headerText: string, text: string): Range | undefine
 	if (end === undefined)
 		end = { line: lines.length, character: 0 };
 
-	return { start, end };
+	return {
+		content: lines.slice(start.line, end.line + 1),
+		range: { 
+			start, end
+		}
+	};
 }
 
-// TODO: make this return TextRange
+
+export function typeTreeInDocument(text: string): TypeTree {
+	const typeHierarchy = sectionRange('type hierarchy', text);
+	const tree = typeHierarchy 
+		? TypeTree.fromHierarchy(typeHierarchy.content) 
+		: new TypeTree();
+
+	const templateLines = sectionRange('templates', text);
+	const typeNameRegex = /(?<=\*)an? [\w|\s]+(?=\*)/g;
+	if (templateLines !== undefined) {
+		for (const line of templateLines.content) {
+			for (const [typeName] of line.matchAll(typeNameRegex)) 
+				tree.addType(typeName);
+		}
+	}
+
+	return tree;
+}
+
+
 export function templatesInDocument(text: string): Template[] {
 	const templateRange = sectionRange('templates', text);
+	const typeTree = typeTreeInDocument(text); // TODO: refactor this as argument?
 	if (templateRange === undefined)
 		return [];
 	
-	const templates = text
-	.split('\n')
-	.slice(templateRange.start.line, templateRange.end.line)
-	.map(string => Template.fromString(string));
 
-	return templates;
+	return templateRange.content.map(line => Template.fromString(typeTree, line));
 }
 
 
 export function clausesInDocument(text: string): ContentRange<string>[] {
-	const clauseRange = sectionRange('knowledge base', text);
+	const clauseRange = sectionRange('knowledge base', text)?.range;
 
 	if (clauseRange === undefined)
 		return [];

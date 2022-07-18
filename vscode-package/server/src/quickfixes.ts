@@ -2,7 +2,7 @@ import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Posit
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
 import { literalHasNoTemplateMessage } from './diagnostics';
-import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments, ContentRange, literalsInClause } from './utils';
+import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments, ContentRange, literalsInClause, typeTreeInDocument } from './utils';
 
 import { debugOnStart } from './diagnostics';
 import { Term } from './term';
@@ -10,7 +10,7 @@ import { Term } from './term';
 // adapted from https://github.com/YuanboXue-Amber/endevor-scl-support/blob/master/server/src/CodeActionProvider.ts
 
 export function quickfixes(document: TextDocument, params: CodeActionParams): CodeAction[] {
-	debugOnStart();
+	// debugOnStart();
 	
 	const text = ignoreComments(document.getText());
 	return [
@@ -22,13 +22,14 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 
 function literalWithNoTemplateFixes(text: string, params: CodeActionParams): CodeAction[] {
 	const templates = templatesInDocument(text);
+	const typeTree = typeTreeInDocument(text);
 	const literalsWithNoTemplate = literalsInDocument(text)
 	.filter(literal => !templates.some(template => template.matchesLiteral(literal.content)));
 
 	if (literalsWithNoTemplate.length < 2)
 		return [];
 	
-	const templatesRange = sectionRange('templates', text);
+	const templatesRange = sectionRange('templates', text)?.range;
 	if (templatesRange === undefined)
 		return [];
 	
@@ -37,7 +38,7 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 		end: templatesRange.end
 	};
 
-	let generatedTemplate = Template.fromLGG(literalsWithNoTemplate.map(lit => lit.content));
+	let generatedTemplate = Template.fromLGG(typeTree, literalsWithNoTemplate.map(lit => lit.content));
 	if (generatedTemplate === undefined)
 		return [];
 
@@ -46,7 +47,7 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 	for (const literal of literalsWithNoTemplate) {
 		const clause = clauseContainingLiteral(text, literal);
 		if (clause !== undefined) {
-			for (const { name: term } of termsInClause(templates, clause))
+			for (const term of termsInClause(templates, clause))
 				generatedTemplate = generatedTemplate.withVariable(term);
 		}
 	}

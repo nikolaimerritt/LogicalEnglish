@@ -1,4 +1,4 @@
-import { Template, TemplateVariable } from './template';
+import { Template } from './template';
 
 export class Type {
 	public readonly name: string;
@@ -37,6 +37,10 @@ export class TypeTree {
 		this.root.makeSubtype(newType);
 		return newType;
 	}
+
+	public addType(name: string) {
+		this.getType(name);
+	}
 	
 
 	public toString(): string {
@@ -44,7 +48,7 @@ export class TypeTree {
 	}
 
 	public addTypesFromTemplate(template: Template) {
-		const types = template.templateVariables().map(v => v.type);
+		const types = template.templateVariables();
 		for (const type of types) {
 			if (TypeTree.find(this.root, t => t.name === type.name) === undefined)
 				this.root.makeSubtype(type);
@@ -64,16 +68,6 @@ export class TypeTree {
 	}
 
 
-	// lines is after root
-	/*
-	A
-		B
-			C
-			D
-				E
-		F
-	G
-	*/
 	private static populateFromHierarchy(root: Type, subtypeLines: string[]) {
 		const childIndent = indentationOf(subtypeLines[0]);
 
@@ -116,8 +110,6 @@ export class TypeTree {
 	}
 }
 
-
-export const typeTree = new TypeTree();
 
 // returns all lines that are subtype to lines[0]
 // cannot mix tabs and spaces!

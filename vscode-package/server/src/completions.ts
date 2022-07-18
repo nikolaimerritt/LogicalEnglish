@@ -1,6 +1,6 @@
 import { Position, Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { CompletionItem, CompletionItemKind, /* InsertReplaceEdit,*/ TextDocumentPositionParams, InsertTextFormat, InsertReplaceEdit, TextEdit } from "vscode-languageserver";
-import { literalAtPosition, sectionRange, templatesInDocument } from './utils';
+import { literalAtPosition, sectionRange, templatesInDocument, typeTreeInDocument } from './utils';
 
 
 export function provideCompletions(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {	
@@ -13,12 +13,13 @@ export function provideCompletions(document: TextDocument, params: TextDocumentP
 
 
 function literalCompletion(text: string, params: TextDocumentPositionParams): CompletionItem[] {
-	const knowledgeBaseRange = sectionRange('knowledge base', text);
+	const knowledgeBaseRange = sectionRange('knowledge base', text)?.range;
 	if (knowledgeBaseRange === undefined 
 			|| params.position.line < knowledgeBaseRange.start.line 
 			|| params.position.line > knowledgeBaseRange.end.line) 
 		return [];
 	
+	const typeTree = typeTreeInDocument(text);
 	const templates = templatesInDocument(text);
 
 	const line = text.split('\n')[params.position.line];
@@ -44,7 +45,7 @@ function literalCompletion(text: string, params: TextDocumentPositionParams): Co
 	const completions: CompletionItem[] = [];
 	templates.forEach(template => {
 		if (template.matchScore(literal) > 0) {
-			const templateWithMissingTerms = template.templateWithMissingTerms(literal);
+			const templateWithMissingTerms = template.templateWithMissingTerms(typeTree, literal);
 			const textEdit = TextEdit.replace(literalToEndOfLine, templateWithMissingTerms.toSnippet());
 
 			completions.push({
