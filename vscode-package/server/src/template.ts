@@ -384,7 +384,7 @@ export class Template {
 	// *an A* 		really likes 	*a B* 	with value 	*a C*
 	// fred bloggs	really likes 	apples	with val
 	// output = fred bloggs really likes apples with value *a C*
-	public templateWithMissingTerms(typeTree: TypeTree, literal: string): Template {
+	public withMissingTerms(typeTree: TypeTree, literal: string): Template {
 		const terms = this.termsFromIncompleteLiteral(literal);
 		const tokens: Token[] = [];
 		this.elements.forEach(token => {

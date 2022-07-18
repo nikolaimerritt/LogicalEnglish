@@ -189,7 +189,6 @@ connection.onCompletion(params => {
 	if (document === undefined)
 		return [];
 	
-	// can return CompletionList, which enables snippet support!
 	return provideCompletions(document, params);
 });
 

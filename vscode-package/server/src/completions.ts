@@ -5,10 +5,7 @@ import { literalAtPosition, sectionRange, templatesInDocument, typeTreeInDocumen
 
 export function provideCompletions(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {	
 	const text = document.getText();
-	return [
-		...literalCompletion(text, params),
-		...dummyCompletion()
-	];
+	return literalCompletion(text, params);
 }
 
 
@@ -45,11 +42,12 @@ function literalCompletion(text: string, params: TextDocumentPositionParams): Co
 	const completions: CompletionItem[] = [];
 	templates.forEach(template => {
 		if (template.matchScore(literal) > 0) {
-			const templateWithMissingTerms = template.templateWithMissingTerms(typeTree, literal);
+			console.log(`Template ${template.toString()} matches literal ${literal}`);
+			const templateWithMissingTerms = template.withMissingTerms(typeTree, literal);
 			const textEdit = TextEdit.replace(literalToEndOfLine, templateWithMissingTerms.toSnippet());
 
 			completions.push({
-				label: templateWithMissingTerms.toString(),
+				label: templateWithMissingTerms.toSnippet(),
 				kind: CompletionItemKind.Class,
 				insertTextFormat: InsertTextFormat.Snippet,
 				textEdit,
