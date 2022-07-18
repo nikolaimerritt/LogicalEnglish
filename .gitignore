@@ -1,5 +1,6 @@
 # Personal
 *.md
+*.vsix
 
 foo.le
 *.aux
