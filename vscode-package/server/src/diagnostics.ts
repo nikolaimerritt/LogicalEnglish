@@ -95,20 +95,17 @@ function typeMismatchDiags(text: string, typeTree: TypeTree): Diagnostic[] {
 		const terms = termsInClause(templates, clause);
 		for (let i = 0; i < terms.length; i++) {
 			for (let j = i + 1; j < terms.length; j++) {
-				if (terms[i].content.name === terms[j].content.name 
-						&& terms[i].content.type !== terms[j].content.type) {
-					
-					const message = `Type mismatch: type '${terms[i].content.type.name}' versus type '${terms[j].content.type.name}'`;
-					diagnostics.push({
-						severity: DiagnosticSeverity.Warning,
-						range: terms[i].range,
-						message
-					});
-					diagnostics.push({
-						severity: DiagnosticSeverity.Warning,
-						range: terms[j].range,
-						message
-					});
+				if (terms[i].content.name === terms[j].content.name && terms[i].content.type !== terms[j].content.type) {
+					const message = `Type mismatch: '${terms[i].content.type.name}' versus '${terms[j].content.type.name}'`;
+					for (const range of [terms[i].range, terms[j].range]) {
+						if (!diagnostics.some(diag => diag.range === range)) {
+							diagnostics.push({
+								severity: DiagnosticSeverity.Warning,
+								range,
+								message
+							});
+						}
+					}
 				}
 			}
 		}

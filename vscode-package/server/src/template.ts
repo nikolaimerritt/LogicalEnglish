@@ -119,7 +119,12 @@ export class Template {
 	}
 
 	public static fromLGG(typeTree: TypeTree, literals: string[]): Template | undefined {
-		
+		if (literals.length === 0)
+			return undefined;
+
+		if (literals.length === 1)
+			return Template.fromString(typeTree, literals[0]);
+
 		const wordsFromEachLiteral = literals.map(literal => literal.replace('.', '').split(/\s+/g));
 		const predicateWords = Template.predicateWordsFromLiterals(wordsFromEachLiteral);
 		
@@ -393,7 +398,7 @@ export class Template {
 			else if (token.kind === TokenKind.Type) {
 				if (terms.length > 0) {
 					// templateElements.push(new PredicateWord(terms[0]));
-					tokens.push(Token.fromType(typeTree.getType(terms[0]))); // TODO: should this not be fromType ??
+					tokens.push(Token.fromWord(terms[0])); // using term as word, rather than variable
 					terms.shift(); // remove first term
 				} else 
 					tokens.push(token);

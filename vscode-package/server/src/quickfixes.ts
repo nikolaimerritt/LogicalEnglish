@@ -13,23 +13,18 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 	// debugOnStart();
 	
 	const text = ignoreComments(document.getText());
-	console.log('Type Tree:');
-	console.log(typeTreeInDocument(text));
 	return [
 		...literalWithNoTemplateFixes(text, params)
 	];
 }
 
 
-
+// TODO: create template even if there is only one literal
 function literalWithNoTemplateFixes(text: string, params: CodeActionParams): CodeAction[] {
 	const templates = templatesInDocument(text);
 	const typeTree = typeTreeInDocument(text);
 	const literalsWithNoTemplate = literalsInDocument(text)
 	.filter(literal => !templates.some(template => template.matchesLiteral(literal.content)));
-
-	if (literalsWithNoTemplate.length < 2)
-		return [];
 	
 	const templatesRange = sectionRange('templates', text)?.range;
 	if (templatesRange === undefined)
@@ -40,6 +35,8 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 		end: templatesRange.end
 	};
 
+
+	// this line causes the error
 	let generatedTemplate = Template.fromLGG(typeTree, literalsWithNoTemplate.map(lit => lit.content));
 	if (generatedTemplate === undefined)
 		return [];
