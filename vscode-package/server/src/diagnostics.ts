@@ -6,7 +6,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { templatesInDocument, literalsInDocument, clausesInDocument, ignoreComments, literalsInClause, termsInClause } from './utils';
 import { Template } from './template';
-import { typeTree } from './type';
+import { Type, TypeTree, typeTree } from './type';
 
 export interface ExampleSettings {
 	maxNumberOfProblems: number;
@@ -33,8 +33,18 @@ export function textDocumentDiagnostics(maxNumberOfProblems: number, document: T
 
 
 export function debugOnStart() {
-	console.log('Type Tree:');
-	console.log(typeTree.toString());
+	const hierarchy = 
+`apple
+	banana
+		canteloupe
+		doughnut
+			eggplant
+	frog
+goat`.split('\n');
+
+	const tree = TypeTree.fromHierarchy(hierarchy);
+	console.log('Type Tree');
+	console.log(tree);
 }
 
 

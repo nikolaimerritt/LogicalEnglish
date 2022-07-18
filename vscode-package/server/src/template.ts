@@ -388,7 +388,7 @@ export class Template {
 	} 
 
 
-	private templateVariables(): TemplateVariable[] {
+	public templateVariables(): TemplateVariable[] {
 		return this.elements
 		.filter(el => el.kind === TemplateElementKind.Variable)
 		.map(el => el as TemplateVariable);
