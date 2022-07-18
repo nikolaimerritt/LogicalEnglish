@@ -15,6 +15,9 @@
       "include": "#multiline-comments"
     },
     {
+      "include": "#type-hierarchy-headers"
+    },
+    {
       "include": "#template-headers"
     },
     {
@@ -63,6 +66,18 @@
       "endCaptures": {
         "0": {
           "name": "punctuation.definition.comment.block.end.logical-english"
+        }
+      }
+    },
+    "type-hierarchy-headers": {
+      "match": "^(\\s*)(the type hierarchy is)(:)(\\s*)$",
+      "name": "entity.type-hierarchy.logical-english",
+      "captures": {
+        "2": {
+          "name": "storage.type.type-hierarchy.logical-english"
+        },
+        "3": {
+          "name": "punctuation.section.type-hierarchy.begin.logical-english"
         }
       }
     },

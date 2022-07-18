@@ -43,18 +43,7 @@ export function textDocumentDiagnostics(maxNumberOfProblems: number, document: T
 
 
 export function debugOnStart() {
-	const hierarchy = 
-`apple
-	banana
-		canteloupe
-		doughnut
-			eggplant
-	frog
-goat`.split('\n');
-
-	const tree = TypeTree.fromHierarchy(hierarchy);
-	console.log('Type Tree');
-	console.log(tree);
+	0;
 }
 
 

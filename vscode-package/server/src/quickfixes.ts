@@ -13,6 +13,8 @@ export function quickfixes(document: TextDocument, params: CodeActionParams): Co
 	// debugOnStart();
 	
 	const text = ignoreComments(document.getText());
+	console.log('Type Tree:');
+	console.log(typeTreeInDocument(text));
 	return [
 		...literalWithNoTemplateFixes(text, params)
 	];

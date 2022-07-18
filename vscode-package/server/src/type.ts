@@ -69,6 +69,10 @@ export class TypeTree {
 
 
 	private static populateFromHierarchy(root: Type, subtypeLines: string[]) {
+		subtypeLines = subtypeLines.filter(line => line.trim().length > 0);
+		if (subtypeLines.length === 0)
+			return;
+
 		const childIndent = indentationOf(subtypeLines[0]);
 
 		for (let i = 0; i < subtypeLines.length; i++) {

@@ -44,7 +44,7 @@ export function sectionRange(headerText: string, text: string): ContentRange<str
 
 export function typeTreeInDocument(text: string): TypeTree {
 	const typeHierarchy = sectionRange('type hierarchy', text);
-	const tree = typeHierarchy 
+	const tree = typeHierarchy
 		? TypeTree.fromHierarchy(typeHierarchy.content) 
 		: new TypeTree();
 
