@@ -67,8 +67,14 @@ export function templatesInDocument(text: string): Template[] {
 	if (templateRange === undefined)
 		return [];
 	
+	const templates: Template[] = [];
+	for (let line of templateRange.content) {
+		line = line.trim();
+		if (line.length > 0) 
+			templates.push(Template.fromString(typeTree, line));
+	}
 
-	return templateRange.content.map(line => Template.fromString(typeTree, line));
+	return templates;
 }
 
 
