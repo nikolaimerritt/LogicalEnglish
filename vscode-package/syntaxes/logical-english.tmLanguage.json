@@ -44,7 +44,7 @@
       "patterns": [
         {
           "name": "keyword.control.logical-english",
-          "match": "^\\s*if\\b|\\bif\\s*$|^\\s*and\\b|\\band\\s*$|^\\s*or\\b|\\bor\\s*$|^\\s*it is the case that\\b|\\bit is the case that\\s*$|^\\s*it is not the case that\\b|\\bit is not the case that\\s*$ "
+          "match": "(\\bit is the case that\\b|\\bit is not the case that\\b|^\\s*if\\b|\\bif\\s*$|^\\s*and\\b|\\band\\s*$|^\\s*or\\b|\\bor\\s*$)"
         }
       ]
     },

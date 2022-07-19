@@ -36,7 +36,6 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 	};
 
 
-	// this line causes the error
 	let generatedTemplate = Template.fromLGG(typeTree, literalsWithNoTemplate.map(lit => lit.content));
 	if (generatedTemplate === undefined)
 		return [];

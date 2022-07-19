@@ -126,25 +126,38 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 }
 
 
-export function literalsInClause(clause: ContentRange<string>): ContentRange<string>[] {
-	const connectives = [
-		'if',
-		'and',
-		'or',
+function connectivesRegex(): RegExp {
+	const inlineConnectives = [ // connectives that can be placed in-line
 		'it is the case that',
 		'it is not the case that'
 	];
-	const connectivesPattern = connectives
-	.map(conn => `^\\s*${conn}\\b|\\b${conn}\\s*$`)
-	.join('|');
+	const lineBorderConnectives = [
+		'if',
+		'and',
+		'or'
+	];
 
-	const connectivesRegex = new RegExp(connectivesPattern, 'gm');
+	let regexTerms = inlineConnectives
+	.map(conn => `\\b${conn}\\b`); // connective can appear at any word boundary
+	
+	regexTerms = regexTerms
+	.concat(
+		lineBorderConnectives.map(conn => `^\\s*${conn}\\b|\\b${conn}\\s*$`) // connective can only appear at start or end of line
+	);
+
+	const regex = `(?:${regexTerms.join('|')})`;
+	console.log(regex);
+	return new RegExp(regex, 'gm');
+}
+
+
+export function literalsInClause(clause: ContentRange<string>): ContentRange<string>[] {
 	const lines = clause.content.split('\n');
 	const literalsWithRanges: ContentRange<string>[] = [];
 
 	for (let lineOffset = 0; lineOffset < lines.length; lineOffset++) {
 		const lineNumber = clause.range.start.line + lineOffset;
-		const literalsInLine = lines[lineOffset].split(connectivesRegex)
+		const literalsInLine = lines[lineOffset].split(connectivesRegex())
 		.map(lit => lit.trim())
 		.filter(lit => lit.length > 0);
 
