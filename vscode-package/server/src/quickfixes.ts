@@ -89,7 +89,8 @@ function termsInClause(templates: Template[], clause: ContentRange<string>): Ter
 	const literals = literalsInClause(clause);
 
 	for (const { content: literal } of literals) {
-		const template = templates.find(t => t.matchesLiteral(literal));
+		// const template = templates.find(t => t.matchesLiteral(literal));
+		const template = Template.findBestMatch(templates, literal);
 		if (template !== undefined) 
 			terms = terms.concat(template.termsFromLiteral(literal));
 	}

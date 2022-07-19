@@ -48,7 +48,7 @@ export class TypeTree {
 	}
 
 	public addTypesFromTemplate(template: Template) {
-		const types = template.templateVariables();
+		const types = template.types();
 		for (const type of types) {
 			if (TypeTree.find(this.root, t => t.name === type.name) === undefined)
 				this.root.makeSubtype(type);

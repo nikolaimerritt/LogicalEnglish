@@ -1,4 +1,4 @@
-import { deepCopy, removeBlanks, removeFirst, regexSanitise } from './utils';
+import { deepCopy, removeBlanks, removeFirst, regexSanitise, maximal } from './utils';
 import { Type, TypeTree } from './type';
 import { Term } from './term';
 
@@ -213,7 +213,7 @@ export class Template {
 		.flatMap(word => word.split(' '));
 
 		const termNames = Template.termNamesFromLiteral(literal, predicateWords);
-		const variables = this.templateVariables();
+		const variables = this.types();
 		const terms: Term[] = [];
 		
 		for (let i = 0; i < termNames.length; i++) 
@@ -408,6 +408,22 @@ export class Template {
 		return new Template(tokens);
 	}
 
+	// finds the template that 
+	// 	- matches the literal
+	// 	- then, has the most amount of variables
+	//  - then, has the longest name
+	public static findBestMatch(templates: Template[], literal: string): Template | undefined {
+		const candidates = templates.filter(t => t.matchesLiteral(literal));
+
+		if (candidates.length === 0)
+			return undefined;
+
+		const maxVariableCount = Math.max(...candidates.map(t => t.types().length));
+		const candidatesWithMaxVars = candidates.filter(t => t.types().length === maxVariableCount);
+
+		return maximal(candidatesWithMaxVars, t => t.predicateWords().join(' ').length);
+	}
+
 
 	private predicateWords(): PredicateWord[] {
 		return this.elements
@@ -416,7 +432,7 @@ export class Template {
 	} 
 
 
-	public templateVariables(): Type[] {
+	public types(): Type[] {
 		return this.elements
 		.filter(el => el.kind === TokenKind.Type)
 		.map(el => el.content as Type);

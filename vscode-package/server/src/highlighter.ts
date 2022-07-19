@@ -10,6 +10,7 @@ import {
 } from "vscode-languageserver";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { Template } from './template';
 import { ignoreComments, literalsInDocument, templatesInDocument } from './utils';
 
 
@@ -48,7 +49,9 @@ function termInLiteralTokens(text: string): TokenDetails[] {
     
     // eslint-disable-next-line prefer-const
     for (let { content: literal, range } of literalsInDocument(text)) {
-        const template = templates.find(template => template.matchesLiteral(literal));
+        // const template = templates.find(template => template.matchesLiteral(literal));
+        const template = Template.findBestMatch(templates, literal);
+        
         if (template !== undefined) {
             const terms = template.termsFromLiteral(literal);
             

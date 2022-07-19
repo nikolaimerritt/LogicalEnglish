@@ -4,6 +4,7 @@ import { Position, Range } from 'vscode-languageserver';
 import { Template } from './template';
 import { Term } from './term';
 import { TypeTree } from './type';
+import { defaultTemplateStrings } from './default-templates';
 
 export type ContentRange<T> = {
 	content: T,
@@ -68,10 +69,13 @@ export function templatesInDocument(text: string): Template[] {
 		return [];
 	
 	const templates: Template[] = [];
-	for (let line of templateRange.content) {
-		line = line.trim();
-		if (line.length > 0) 
-			templates.push(Template.fromString(typeTree, line));
+	const templateStrings = templateRange.content
+	.concat(defaultTemplateStrings);
+
+	for (let templateString of templateStrings) {
+		templateString = templateString.trim();
+		if (templateString.length > 0) 
+			templates.push(Template.fromString(typeTree, templateString));
 	}
 
 	return templates;
@@ -178,9 +182,11 @@ export function termsInClause(templates: Template[], clause: ContentRange<string
 	const termRanges: ContentRange<Term>[] = [];
 
 	for (const { content: literal, range: literalRange } of literalsInClause(clause)) {
-		const template = templates.find(t => t.matchesLiteral(literal));
+		// const template = templates.find(t => t.matchesLiteral(literal));
+		const template = Template.findBestMatch(templates, literal);
 		if (template !== undefined) {
 			let termIdx = 0;
+
 			for (const term of template.termsFromLiteral(literal)) {
 				termIdx = literal.indexOf(term.name, termIdx);
 				termRanges.push({
@@ -205,21 +211,37 @@ export function termsInClause(templates: Template[], clause: ContentRange<string
 }
 
 
-export function intersectionOf<T>(lists: T[][]): T[] {
-	const allElements: T[] = [];
-	for (const el of lists[0]) {
-		if (lists.every(list => list.includes(el)))
-			allElements.push(el);
+// export function intersectionOf<T>(lists: T[][]): T[] {
+// 	const allElements: T[] = [];
+// 	for (const el of lists[0]) {
+// 		if (lists.every(list => list.includes(el)))
+// 			allElements.push(el);
+// 	}
+// 	// allElements is now a list of each element from each list
+
+// 	const intersection: T[] = [];
+// 	allElements.forEach(el => {
+// 		if (lists.every(list => list.includes(el)))
+// 			intersection.push(el);
+// 	});
+
+// 	return intersection;
+// }
+
+
+export function maximal<T>(list: T[], valueFunction: (element: T) => number): T {
+	let bestElement = list[0];
+	let maxValue = valueFunction(bestElement);
+
+	for (let i = 1; i < list.length; i++) {
+		const value = valueFunction(list[i]);
+		if (value > maxValue) {
+			bestElement = list[i];
+			maxValue = value;
+		}
 	}
-	// allElements is now a list of each element from each list
 
-	const intersection: T[] = [];
-	allElements.forEach(el => {
-		if (lists.every(list => list.includes(el)))
-			intersection.push(el);
-	});
-
-	return intersection;
+	return bestElement;
 }
 
 export function removeBlanks(words: string[]): string[] {
