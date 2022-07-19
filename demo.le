@@ -1,4 +1,7 @@
 %type checking: on
+
+% (**) = introduced later in the demo
+
 the type hierarchy is:
 	a person 
 		a boss

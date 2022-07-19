@@ -123,13 +123,24 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 
 
 export function literalsInClause(clause: ContentRange<string>): ContentRange<string>[] {
-	const connectives = /\b(?:if|and|or|it is the case that|it is not the case that)\b/g;
+	const connectives = [
+		'if',
+		'and',
+		'or',
+		'it is the case that',
+		'it is not the case that'
+	];
+	const connectivesPattern = connectives
+	.map(conn => `^\\s*${conn}\\b|\\b${conn}\\s*$`)
+	.join('|');
+
+	const connectivesRegex = new RegExp(connectivesPattern, 'gm');
 	const lines = clause.content.split('\n');
 	const literalsWithRanges: ContentRange<string>[] = [];
 
 	for (let lineOffset = 0; lineOffset < lines.length; lineOffset++) {
 		const lineNumber = clause.range.start.line + lineOffset;
-		const literalsInLine = lines[lineOffset].split(connectives)
+		const literalsInLine = lines[lineOffset].split(connectivesRegex)
 		.map(lit => lit.trim())
 		.filter(lit => lit.length > 0);
 
