@@ -1,6 +1,6 @@
 import { Position, Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { CompletionItem, CompletionItemKind, /* InsertReplaceEdit,*/ TextDocumentPositionParams, InsertTextFormat, InsertReplaceEdit, TextEdit } from "vscode-languageserver";
-import { literalAtPosition, sectionRange, templatesInDocument, typeTreeInDocument } from './utils';
+import { literalAtPosition, areaWithClauses, templatesInDocument, typeTreeInDocument } from './utils';
 
 
 export function provideCompletions(document: TextDocument, params: TextDocumentPositionParams): CompletionItem[] {	
@@ -10,10 +10,11 @@ export function provideCompletions(document: TextDocument, params: TextDocumentP
 
 
 function literalCompletion(text: string, params: TextDocumentPositionParams): CompletionItem[] {
-	const knowledgeBaseRange = sectionRange('knowledge base', text)?.range;
-	if (knowledgeBaseRange === undefined 
-			|| params.position.line < knowledgeBaseRange.start.line 
-			|| params.position.line > knowledgeBaseRange.end.line) 
+	// const knowledgeBaseRange = sectionRange('knowledge base', text)?.range;
+	const allClausesRange = areaWithClauses(text)?.range;
+	if (allClausesRange === undefined 
+			|| params.position.line < allClausesRange.start.line 
+			|| params.position.line > allClausesRange.end.line) 
 		return [];
 	
 	const typeTree = typeTreeInDocument(text);

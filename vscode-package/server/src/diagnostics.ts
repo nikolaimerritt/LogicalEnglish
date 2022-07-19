@@ -9,9 +9,7 @@ import {
 	literalsInDocument, 
 	clausesInDocument, 
 	ignoreComments, 
-	literalsInClause, 
 	termsInClause, 
-	sectionRange, 
 	typeTreeInDocument 
 } from './utils';
 import { Template } from './template';

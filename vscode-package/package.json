@@ -1,6 +1,6 @@
 {
 	"name": "logical-english-vscode",
-	"displayName": "Logican English",
+	"displayName": "Logical English",
 	"description": "A language plugin for the logical programming language Logical English.",
 	"author": {
 		"name": "Nikolai Merritt",
@@ -8,7 +8,7 @@
 	},
 	"icon": "orange-circle.png",
 	"license": "MIT",
-	"version": "0.1.8",
+	"version": "0.1.11",
 	"homepage": "https://github.com/nikolaimerritt/LogicalEnglish",
 	"repository": {
 		"type": "git",

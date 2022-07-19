@@ -425,7 +425,7 @@ export class Template {
 	}
 
 
-	private predicateWords(): PredicateWord[] {
+	public predicateWords(): PredicateWord[] {
 		return this.elements
 		.filter(el => el.kind === TokenKind.Word)
 		.map(el => el.content as PredicateWord);

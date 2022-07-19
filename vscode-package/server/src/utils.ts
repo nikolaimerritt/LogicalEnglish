@@ -11,20 +11,30 @@ export type ContentRange<T> = {
 	range: Range
 }
 
-export function sectionRange(headerText: string, text: string): ContentRange<string[]> | undefined {
+function sectionRange(text: string, headerPredicate: (header: string) => boolean): ContentRange<string[]> | undefined {
 	const lines = text.split('\n');
 	
 	let start: Position | undefined = undefined;
 	let end: Position | undefined = undefined;
 
 	for (let i = 0; i < lines.length; i++) {
-		if (lines[i].includes(':')) {
-			if (start !== undefined) {
+		// if (lines[i].includes(':')) {
+		// 	if (start !== undefined) {
+		// 		end = { line: i - 1, character: 0 };
+		// 		break;
+		// 	}
+		// 	else if (headerPredicate(lines[i]))
+		// 		start = { line: i + 1, character: 0 };
+		// }
+
+		if (lines[i].includes(':')) { // line is a header
+			if (headerPredicate(lines[i]) && start === undefined) {
+				start = { line: i + 1, character: 0 };
+			}
+			else if (!headerPredicate(lines[i]) && start !== undefined) {
 				end = { line: i - 1, character: 0 };
 				break;
 			}
-			else if (lines[i].includes(headerText))
-				start = { line: i + 1, character: 0 };
 		}
 	}
 
@@ -42,14 +52,26 @@ export function sectionRange(headerText: string, text: string): ContentRange<str
 	};
 }
 
+export function sectionWithHeader(text: string, headerText: string): ContentRange<string[]> | undefined {
+	return sectionRange(text, header => header.includes(headerText));
+}
+
+export function areaWithClauses(text: string): ContentRange<string[]> | undefined {
+	return sectionRange(text, header => 
+		header.includes('knowledge base') 
+		|| header.includes('scenario')
+		|| header.includes('query')
+	);
+}
+
 
 export function typeTreeInDocument(text: string): TypeTree {
-	const typeHierarchy = sectionRange('type hierarchy', text);
+	const typeHierarchy = sectionWithHeader(text, 'type hierarchy');
 	const tree = typeHierarchy
 		? TypeTree.fromHierarchy(typeHierarchy.content) 
 		: new TypeTree();
 
-	const templateLines = sectionRange('templates', text);
+	const templateLines = sectionWithHeader(text, 'templates');
 	const typeNameRegex = /(?<=\*)an? [\w|\s]+(?=\*)/g;
 	if (templateLines !== undefined) {
 		for (const line of templateLines.content) {
@@ -63,7 +85,7 @@ export function typeTreeInDocument(text: string): TypeTree {
 
 
 export function templatesInDocument(text: string): Template[] {
-	const templateRange = sectionRange('templates', text);
+	const templateRange = sectionWithHeader(text, 'templates');
 	const typeTree = typeTreeInDocument(text); // TODO: refactor this as argument?
 	if (templateRange === undefined)
 		return [];
@@ -81,16 +103,15 @@ export function templatesInDocument(text: string): Template[] {
 	return templates;
 }
 
-
 export function clausesInDocument(text: string): ContentRange<string>[] {
-	const clauseRange = sectionRange('knowledge base', text)?.range;
-
+	// const clauseRange = sectionRange('knowledge base', text)?.range;
+	const clauseRange = areaWithClauses(text)?.range;
 	if (clauseRange === undefined)
 		return [];
 	
 	const lines = text.split('\n');
 	const clauses: ContentRange<string>[] = [];
-	const clauseStartPattern = /^.*\w+.*$/;
+	const clauseStartPattern = /^\s*\w+.*[^:]$/;
 	const clauseEndPattern = /^.*\.$/;
 
 	let clauseStart = undefined;
@@ -288,10 +309,9 @@ export function sanitiseLiteral(literal: string): string {
 
 
 export function literalAtPosition(line: string, characterOffset: number): string | undefined {
-	const connectives = /\b(?:if|and|or|that|it is the case that|it is not the case that)\b/g;
 	const literals = line
-	.split(connectives)
-	.map(literal => literal.trim().replace('.', ''))
+	.split(connectivesRegex())
+	.map(sanitiseLiteral)
 	.filter(literal => literal.length > 0);
 
 	for (const literal of literals) {

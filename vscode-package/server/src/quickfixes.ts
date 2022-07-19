@@ -2,7 +2,7 @@ import { CodeAction, CodeActionParams, DiagnosticSeverity, CodeActionKind, Posit
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Template } from './template';
 import { literalHasNoTemplateMessage } from './diagnostics';
-import { literalsInDocument, sectionRange, templatesInDocument, clausesInDocument, ignoreComments, ContentRange, literalsInClause, typeTreeInDocument } from './utils';
+import { literalsInDocument, sectionWithHeader, templatesInDocument, clausesInDocument, ignoreComments, ContentRange, literalsInClause, typeTreeInDocument } from './utils';
 
 import { debugOnStart } from './diagnostics';
 import { Term } from './term';
@@ -26,7 +26,7 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 	const literalsWithNoTemplate = literalsInDocument(text)
 	.filter(literal => !templates.some(template => template.matchesLiteral(literal.content)));
 	
-	const templatesRange = sectionRange('templates', text)?.range;
+	const templatesRange = sectionWithHeader(text, 'templates')?.range;
 	if (templatesRange === undefined)
 		return [];
 	
@@ -49,6 +49,11 @@ function literalWithNoTemplateFixes(text: string, params: CodeActionParams): Cod
 				generatedTemplate = generatedTemplate.withVariable(term);
 		}
 	}
+
+	// does not generate the trivial template '*an X*'
+	// or a template with no varaibles
+	if (generatedTemplate.predicateWords().length === 0 || generatedTemplate.types().length === 0)
+		return [];
 	
 	const actions: CodeAction[] = [];
 	params.context.diagnostics.forEach(diag => {
