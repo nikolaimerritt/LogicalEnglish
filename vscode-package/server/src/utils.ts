@@ -124,7 +124,7 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 			isInsideClause = true;
 		}
 			
-		if (clauseStart !== undefined && clauseEndPattern.test(lines[l])) {
+		if (clauseStart !== undefined && (clauseEndPattern.test(lines[l]) || l === clauseRange.end.line - 1)) {
 			clauseEnd = l;
 			clauses.push({
 				content: lines.slice(clauseStart, clauseEnd + 1).join('\n'),
@@ -167,7 +167,6 @@ function connectivesRegex(): RegExp {
 	);
 
 	const regex = `(?:${regexTerms.join('|')})`;
-	console.log(regex);
 	return new RegExp(regex, 'gm');
 }
 

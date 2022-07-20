@@ -348,6 +348,7 @@ export class Template {
 
 
 	// TODO: use clause to see if the types of literal's terms match with this template
+	// TODO: why not simply extract predicate words from literal?
 	public matchesLiteral(literal: string): boolean {
 		// given literal L, template T
 		// extract terms of L, assuming that L matches T

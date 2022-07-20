@@ -48,7 +48,7 @@ function literalCompletion(text: string, params: TextDocumentPositionParams): Co
 			const textEdit = TextEdit.replace(literalToEndOfLine, templateWithMissingTerms.toSnippet());
 
 			completions.push({
-				label: templateWithMissingTerms.toSnippet(),
+				label: templateWithMissingTerms.toString(),
 				kind: CompletionItemKind.Class,
 				insertTextFormat: InsertTextFormat.Snippet,
 				textEdit,

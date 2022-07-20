@@ -33,10 +33,6 @@ export function semanticTokens(document: TextDocument): SemanticTokens {
     const text = ignoreComments(document.getText());
     tokens.push(...termInLiteralTokens(text));
 
-    console.log('Semantic tokens:');
-    console.log(tokens);
-
-
     const builder = new SemanticTokensBuilder();
     for (const token of tokens) {
         const { line, char, length, tokenTypeName, tokenModifierName } = token;
