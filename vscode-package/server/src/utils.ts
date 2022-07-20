@@ -111,8 +111,8 @@ export function clausesInDocument(text: string): ContentRange<string>[] {
 	
 	const lines = text.split('\n');
 	const clauses: ContentRange<string>[] = [];
-	const clauseStartPattern = /^\s*\w+.*[^:]$/;
-	const clauseEndPattern = /^.*\.$/;
+	const clauseStartPattern = /^\s*\w[^:]+$/m;
+	const clauseEndPattern = /^.*\.\s*$/m;
 
 	let clauseStart = undefined;
 	let clauseEnd = undefined;
@@ -207,7 +207,8 @@ export function literalsInClause(clause: ContentRange<string>): ContentRange<str
 
 
 export function literalsInDocument(text: string): ContentRange<string>[] {
-	return clausesInDocument(text)
+	const clauses = clausesInDocument(text);
+	return clauses
 	.flatMap(clause => literalsInClause(clause));
 }
 
