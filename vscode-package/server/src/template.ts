@@ -1,4 +1,4 @@
-import { deepCopy, removeBlanks, removeFirst, regexSanitise, maximal } from './utils';
+import { deepCopy, removeBlanks, removeFirst, regexSanitise, maximal, sortBy } from './utils';
 import { Type, TypeTree } from './type';
 import { Term } from './term';
 
@@ -367,9 +367,9 @@ export class Template {
 	// score = (1 + 0.5) / 2
 	public matchScore(literal: string): number { // 0 <= return value <= 1
 		let score = 0;
-		// score = number of predicates that appear consecutively in literal
+		// score = length of literal words before last term
+		// score = number of predicate words that appear consecutively in literal
 		// if the literal ends with the beginning of a predicate, add 0.5
-		// normalise score by amount of predicates
 		
 		for (const word of this.predicateWords()) {
 			const wordIdx = literal.indexOf(word);
@@ -380,11 +380,13 @@ export class Template {
 				
 				break;
 			} else {
-				score++;
+				score += word.length;
 				literal = literal.slice(wordIdx + 1, );
 			}
 		}
-		return score / this.predicateWords().length;
+
+		// return score / this.predicateWords().length;
+		return score;
 	}
 
 	// *an A* 		really likes 	*a B* 	with value 	*a C*
@@ -421,7 +423,6 @@ export class Template {
 
 		const maxVariableCount = Math.max(...candidates.map(t => t.types().length));
 		const candidatesWithMaxVars = candidates.filter(t => t.types().length === maxVariableCount);
-
 		return maximal(candidatesWithMaxVars, t => t.predicateWords().join(' ').length);
 	}
 

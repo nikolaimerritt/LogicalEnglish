@@ -27,7 +27,7 @@ export const literalHasNoTemplateMessage = "Literal has no template.";
 export const clauseHasMisalignedConnectivesMessage = 'Clause has misaligned connectives.';
 
 export function textDocumentDiagnostics(document: TextDocument): Diagnostic[] {	
-	// debugOnStart();
+	debugOnStart();
 	const typeCheckingRegex = /^.*(%type checking:? on)\s*$/gm;
 	let text = document.getText();
 	const typeChecking = typeCheckingRegex.test(text);
@@ -48,7 +48,10 @@ export function textDocumentDiagnostics(document: TextDocument): Diagnostic[] {
 
 
 export function debugOnStart() {
-	0;
+	// const template = Template.fromString(new TypeTree(), '*a person* wants to see *a thing*');
+	// const otherTemplate = template.withMissingTerms(new TypeTree(), 'fred bloggs wants to see india');
+	// console.log('Template with missing terms:');
+	// console.log(otherTemplate);
 }
 
 

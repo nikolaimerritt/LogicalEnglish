@@ -278,6 +278,13 @@ export function maximal<T>(list: T[], valueFunction: (element: T) => number): T 
 	return bestElement;
 }
 
+
+// sorts list in place
+export function sortBy<T>(list: T[], key: (element: T) => number): T[] {
+	return list.sort((a, b) => key(a) - key(b));
+}
+
+
 export function removeBlanks(words: string[]): string[] {
 	return words
 	.map(word => word.trim())
